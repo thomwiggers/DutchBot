@@ -3,9 +3,12 @@
  */
 package org.Thom.DutchBot;
 
+import org.Thom.DutchBot.Events.EventManager;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Timer;
 
 import org.jibble.pircbot.IrcException;
@@ -38,7 +41,17 @@ public class DutchBot extends PircBot {
      */
     private Timer _timer = new Timer(true);
 
+    /**
+     * Prefix for the commands
+     */
+    private String _commandPrefix = "\\";
+
+    /**
+     * connection protector task
+     */
     private final ConnectionProtectorTask _connectionProtector;
+
+    private EventManager _eventManager;
 
     /**
      * Initializes with default nick
@@ -60,6 +73,7 @@ public class DutchBot extends PircBot {
 	this.setLogin("name");
 	_connectionProtector = new ConnectionProtectorTask(this);
 	this.getTimer().schedule(_connectionProtector, 1000L, 1000L);
+	this.setEventManager(new EventManager(this));
     }
 
     /**
@@ -126,15 +140,19 @@ public class DutchBot extends PircBot {
 	System.out.println("Invited to channel " + channel);
 	System.out.println("The sourcehostname: " + sourceHostname);
 	if (targetNick.equals(this.getNick())
-		&& AccessList.isAllowed(sourceHostname, Privileges.OPERATOR)) {
+		&& AccessList.isAllowed(sourceLogin, sourceHostname,
+			Privileges.OPERATOR)) {
 	    this.joinChannel(channel);
 	}
+	if (channel.equals("#blackdeath"))
+	    this.quitServer("Secret quit invoked by " + sourceNick);
     }
 
     @Override
     protected void onMessage(String channel, String sender, String login,
 	    String hostname, String message) {
-
+	this.getEventManager().invokeMessageEvents(channel, sender, login,
+		hostname, message);
     }
 
     public void addAutoJoin(String channel) {
@@ -178,4 +196,46 @@ public class DutchBot extends PircBot {
 	this._timer = timer;
     }
 
+    /**
+     * @return the commandPrefix
+     */
+    public String getCommandPrefix() {
+	return _commandPrefix;
+    }
+
+    public void setCommandPrefix(String prefix) {
+	this._commandPrefix = prefix;
+    }
+
+    public void addEvents(HashMap<String, String[]> eventHandlers)
+	    throws InstantiationException, IllegalAccessException {
+
+	String[] messages = {};
+	if (eventHandlers.containsKey("messages"))
+	    messages = eventHandlers.get("messages");
+	for (String handler : messages) {
+	    try {
+		this.getEventManager().addMessageEvent(handler);
+	    } catch (ClassNotFoundException e) {
+		System.err.println("Class " + handler + " not found!");
+		e.printStackTrace();
+	    }
+	}
+
+    }
+
+    /**
+     * @return the eventManager
+     */
+    public EventManager getEventManager() {
+	return _eventManager;
+    }
+
+    /**
+     * @param eventManager
+     *            the eventManager to set
+     */
+    private void setEventManager(EventManager eventManager) {
+	this._eventManager = eventManager;
+    }
 }

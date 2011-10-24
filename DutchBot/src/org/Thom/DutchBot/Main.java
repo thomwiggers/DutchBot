@@ -4,6 +4,7 @@
 package org.Thom.DutchBot;
 
 import java.io.IOException;
+import java.util.HashMap;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -24,14 +25,16 @@ public class Main {
 
     @SuppressWarnings("static-access")
     public static void main(String[] args) throws IOException, IrcException,
-	    InterruptedException, ConfigurationException {
+	    InterruptedException, ConfigurationException,
+	    InstantiationException, IllegalAccessException {
 	String server = "irc.what-network.net";
 	int port = 6667;
 	String configfile = "irc.properties";
 	String nspass = "";
 	String password = null;
-	String nick = "InterviewBot";
+	String nick = "DutchBot";
 	String[] autojoinList = {};
+	HashMap<String, String[]> eventHandlers = new HashMap<String, String[]>();
 
 	Options options = new Options();
 	options.addOption(OptionBuilder
@@ -69,7 +72,7 @@ public class Main {
 		formatter.printHelp("DutchBot", options);
 		return;
 	    }
-
+	    // check for override config file
 	    if (cli.hasOption("c"))
 		configfile = cli.getOptionValue("c");
 
@@ -87,6 +90,11 @@ public class Main {
 	    if (config.containsKey("irc.autojoin"))
 		autojoinList = config.getStringArray("irc.autojoin");
 
+	    if (config.containsKey("bot.eventhandlers.messages"))
+		eventHandlers.put("messages",
+			config.getStringArray("bot.eventhandlers.messages"));
+
+	    // Read the cli parameters
 	    if (cli.hasOption("pw"))
 		password = cli.getOptionValue("pw");
 	    if (cli.hasOption("s"))
@@ -113,7 +121,7 @@ public class Main {
 	DutchBot bot = new DutchBot(nick);
 	bot.setNickservPassword(nspass);
 	bot.setAutoJoinList(autojoinList);
-
+	bot.addEvents(eventHandlers);
 	AccessList.loadFromConfig(configfile);
 	boolean result = bot.tryConnect(server, port, nick, password);
 	if (result)
