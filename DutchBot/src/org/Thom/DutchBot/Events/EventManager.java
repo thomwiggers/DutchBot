@@ -16,17 +16,24 @@ public class EventManager {
 
     public void invokeMessageEvents(String channel, String sender,
 	    String login, String hostname, String message) {
-	for (MessageEventHandler event : messageEvents) {
-	    boolean result = event.run(bot, channel, sender, login, hostname,
-		    message);
-	    if (result)
-		break;
+	if (message.startsWith(bot.getCommandPrefix())) {
+	    for (MessageEventHandler event : messageEvents) {
+		boolean result = event.run(bot, channel, sender, login,
+			hostname, message.substring(1));
+		if (result)
+		    break;
+	    }
 	}
     }
 
     public void addMessageEvent(String name) throws ClassNotFoundException,
 	    InstantiationException, IllegalAccessException {
-	Class<?> o = Class.forName("org.Thom.DutchBot.Events." + name);
+
+	name = name.substring(0, 1).toUpperCase()
+		.concat(name.substring(2).toLowerCase());
+
+	Class<?> o = Class.forName("org.Thom.DutchBot.Events." + name
+		+ "MessageHandler");
 	MessageEventHandler event = (MessageEventHandler) o.newInstance();
 	messageEvents.add(event);
 

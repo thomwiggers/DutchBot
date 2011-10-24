@@ -24,8 +24,8 @@ public class QuitMessageHandler extends MessageEventHandler {
     @Override
     public boolean run(DutchBot bot, String channel, String sender,
 	    String login, String hostname, String message) {
-	System.out.println("Reached this point. WHOO");
-	if (message.startsWith(bot.getCommandPrefix() + "quit")
+
+	if (message.startsWith("quit")
 		&& AccessList.isAllowed(login, hostname, Privileges.OWNER)) {
 	    bot.quitServer("This bot was shot dead by: " + sender);
 	    System.out.println("Shutdown invoked by: " + sender + "!" + login
