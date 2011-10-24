@@ -98,12 +98,13 @@ public final class AccessList {
 
 	Privileges userAccess = Privileges.USER;
 	if (_accessList.containsKey(user)) {
-	    System.out.println("listing found");
 	    userAccess = _accessList.get(user);
 	}
 
-	if (userAccess.getValue() >= minimumAccess.getValue())
+	if (userAccess.getValue() >= minimumAccess.getValue()) {
+	    System.out.println("Authorized user");
 	    return true;
+	}
 
 	return false;
     }
