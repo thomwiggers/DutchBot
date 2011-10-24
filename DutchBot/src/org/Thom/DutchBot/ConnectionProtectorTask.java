@@ -10,39 +10,42 @@ import org.jibble.pircbot.IrcException;
 
 /**
  * @author Thom
- *
+ * 
  */
 public class ConnectionProtectorTask extends TimerTask {
 
-	private DutchBot bot;
-	private boolean wasConnected;
-	
-	/**
-	 * 
-	 */
-	public ConnectionProtectorTask(DutchBot bot) {
-		this.bot = bot;
+    private final DutchBot bot;
+    private boolean wasConnected;
+
+    /**
+     * 
+     */
+    public ConnectionProtectorTask(DutchBot bot) {
+	this.bot = bot;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.util.TimerTask#run()
+     */
+    @Override
+    public void run() {
+	if (!this.bot.isConnected() && this.wasConnected) {
+	    System.out.println("Reconnecting...");
+	    try {
+		bot.reconnect();
+	    } catch (IrcException e) {
+		e.printStackTrace();
+	    } catch (IOException e) {
+		e.printStackTrace();
+	    } catch (Exception e) {
+		e.printStackTrace();
+	    }
+	} else if (this.bot.isConnected()) {
+	    this.wasConnected = true;
 	}
 
-	/* (non-Javadoc)
-	 * @see java.util.TimerTask#run()
-	 */
-	@Override
-	public void run() {
-		if(!this.bot.isConnected() && this.wasConnected)
-		{
-			try {
-				bot.reconnect();
-			} catch (IrcException e) {
-				e.printStackTrace();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		} else if (this.bot.isConnected())
-		{
-			this.wasConnected = true;
-		}
-
-	}
+    }
 
 }
