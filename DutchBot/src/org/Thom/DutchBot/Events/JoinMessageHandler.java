@@ -9,7 +9,6 @@ public class JoinMessageHandler extends MessageEventHandler {
     @Override
     public boolean run(DutchBot bot, String channel, String sender,
 	    String login, String hostname, String message) {
-	System.out.println("JoinMessageHandler");
 	if (message.startsWith("join ")
 		&& AccessList.isAllowed(login, hostname, Privileges.OPERATOR)) {
 
