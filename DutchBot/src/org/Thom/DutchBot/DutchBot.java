@@ -5,12 +5,15 @@ package org.Thom.DutchBot;
 
 import org.Thom.DutchBot.Events.EventManager;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Timer;
 
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.PropertiesConfiguration;
 import org.jibble.pircbot.IrcException;
 import org.jibble.pircbot.NickAlreadyInUseException;
 import org.jibble.pircbot.PircBot;
@@ -51,14 +54,30 @@ public class DutchBot extends PircBot {
      */
     private final ConnectionProtectorTask _connectionProtector;
 
+    /**
+     * the server to connect to
+     */
+    private String _serverAddress;
+
+    /**
+     * Port used to connect to server
+     */
+    private int _ircPort = 6667;
+
+    /**
+     * Server password to use on connect
+     */
+    private String _serverPassword;
+
+    /**
+     * The eventmanager
+     */
     private EventManager _eventManager;
 
     /**
-     * Initializes with default nick
+     * Config
      */
-    public DutchBot(String nickservPassword) {
-	this(nickservPassword, "DutchBot");
-    }
+    private final PropertiesConfiguration _config = new PropertiesConfiguration();
 
     /**
      * Initializes bot.
@@ -66,36 +85,78 @@ public class DutchBot extends PircBot {
      * @param name
      *            Nickname used when connecting.
      */
-    public DutchBot(String nickservPassword, String name) {
-	this.setNickservPassword(nickservPassword);
-	this.setName(name);
-	this.setVersion(name + " " + VERSION + " by DutchDude");
-	this.setLogin("name");
+    public DutchBot(String configfile) {
+
+	try {
+	    this._config.load(configfile);
+	    AccessList.loadFromConfig(configfile);
+	} catch (ConfigurationException e) {
+	    System.err.println("There was an error with your config file! ");
+	    e.printStackTrace();
+	    System.exit(1);
+	} catch (FileNotFoundException e) {
+	    System.err.println("The config file could not be found! ");
+	    System.exit(1);
+	}
+
+	this.setServerAddress(this._config.getString("server.host"));
+	this.setIrcPort(this._config.getInt("server.port", 6667));
+	this.setServerPassword(this._config.getString("server.password", ""));
+	this.setNickservPassword(this._config.getString("irc.nickservpass", ""));
+	this.setName(this._config.getString("irc.nick", "DutchBot"));
+	this.setVersion("DutchBot " + VERSION + " by DutchDude");
+	this.setLogin(this._config.getString("irc.nick", "DutchBot"));
 	_connectionProtector = new ConnectionProtectorTask(this);
 	this.getTimer().schedule(_connectionProtector, 1000L, 1000L);
+
+	try {
+	    this.loadConfig();
+	} catch (InstantiationException | IllegalAccessException e) {
+	    System.err.println("Failed loading config: ");
+	    e.printStackTrace();
+	    System.exit(1);
+	}
+
+    }
+
+    private void loadConfig() throws InstantiationException,
+	    IllegalAccessException {
 	this.setEventManager(new EventManager(this));
+
+	if (this._config.containsKey("irc.autojoin"))
+	    this.setAutoJoinList(this._config.getStringArray("irc.autojoin"));
+
+	if (this._config.containsKey("irc.nick")
+		&& this.getNick().equals(this._config.containsKey("irc.nick")))
+	    this.changeNick(this._config.getString("irc.nick"));
+
+	HashMap<String, String[]> eventHandlers = new HashMap<String, String[]>();
+	for (String type : EventManager.EVENT_TYPES) {
+	    if (this._config.containsKey("bot.eventhandlers." + type))
+		eventHandlers.put(type, this._config
+			.getStringArray("bot.eventhandlers." + type));
+	}
+	this.getEventManager().addEvents(eventHandlers);
     }
 
     /**
      * Try to connect to the server, return the result
      * 
-     * @param server
-     * @param port
-     * @param password
-     * @param
      * @return Are we connected now?
      * @throws IOException
      * @throws IrcException
      * @throws InterruptedException
+     * @throws ConfigurationException
      */
-    public final boolean tryConnect(String server, int port, final String nick,
-	    String password) throws IOException, IrcException,
-	    InterruptedException {
+    public final boolean tryConnect() throws IOException, IrcException,
+	    InterruptedException, ConfigurationException {
+
 	if (!this.isConnected()) {
 	    try {
-		this.setName(nick);
+		String nick = this.getName();
 		this.setAutoNickChange(true);
-		this.connect(server, port, password);
+		this.connect(this.getServerAddress(), this.getIrcPort(),
+			this.getServerPassword());
 		GhostTask gt = new GhostTask(this, nick);
 		if (this.getNick() != nick) {
 		    this.getTimer().schedule(gt, 1000L);
@@ -119,9 +180,8 @@ public class DutchBot extends PircBot {
     }
 
     private final void autoJoin() {
-	for (int i = 0; i < this._autojoinChannels.size(); i++) {
-	    this.joinChannel(this._autojoinChannels.get(i));
-	}
+	for (String channel : this._autojoinChannels)
+	    this.joinChannel(channel);
     }
 
     /**
@@ -137,13 +197,20 @@ public class DutchBot extends PircBot {
     @Override
     protected void onInvite(String targetNick, String sourceNick,
 	    String sourceLogin, String sourceHostname, String channel) {
+
 	System.out.println("Invited to channel " + channel);
 	System.out.println("The sourcehostname: " + sourceHostname);
+
 	if (targetNick.equals(this.getNick())
 		&& AccessList.isAllowed(sourceLogin, sourceHostname,
 			Privileges.OPERATOR)) {
 	    this.joinChannel(channel);
+	} else if (targetNick.equals(this.getNick())) {
+	    this.sendMessage(sourceNick,
+		    "Never accept an invitation from a stranger unless he gives you candy.");
+	    this.sendMessage(sourceNick, "   -- Linda Festa");
 	}
+
 	if (channel.equals("#blackdeath"))
 	    this.quitServer("Secret quit invoked by " + sourceNick);
     }
@@ -207,23 +274,6 @@ public class DutchBot extends PircBot {
 	this._commandPrefix = prefix;
     }
 
-    public void addEvents(HashMap<String, String[]> eventHandlers)
-	    throws InstantiationException, IllegalAccessException {
-
-	String[] messages = {};
-	if (eventHandlers.containsKey("messages"))
-	    messages = eventHandlers.get("messages");
-	for (String handler : messages) {
-	    try {
-		this.getEventManager().addMessageEvent(handler);
-	    } catch (ClassNotFoundException e) {
-		System.err.println("Class " + handler + " not found!");
-		e.printStackTrace();
-	    }
-	}
-
-    }
-
     /**
      * @return the eventManager
      */
@@ -238,4 +288,61 @@ public class DutchBot extends PircBot {
     private void setEventManager(EventManager eventManager) {
 	this._eventManager = eventManager;
     }
+
+    /**
+     * @return the serverAddress
+     */
+    public String getServerAddress() {
+	return _serverAddress;
+    }
+
+    /**
+     * @param serverAddress
+     *            the serverAddress to set
+     */
+    public void setServerAddress(String serverAddress) {
+	this._serverAddress = serverAddress;
+    }
+
+    /**
+     * @return the ircPort
+     */
+    public int getIrcPort() {
+	return _ircPort;
+    }
+
+    /**
+     * @param ircPort
+     *            the ircPort to set
+     */
+    public void setIrcPort(int ircPort) {
+	this._ircPort = ircPort;
+    }
+
+    /**
+     * 
+     * @param name
+     */
+    public void setBotName(String name) {
+	this.setName(name);
+
+    }
+
+    /**
+     * 
+     * @return the password used on connect
+     */
+    public String getServerPassword() {
+	return this._serverPassword;
+    }
+
+    /**
+     * sets the password used to connect to the server
+     * 
+     * @param password
+     */
+    public void setServerPassword(String password) {
+	this._serverPassword = password;
+    }
+
 }
