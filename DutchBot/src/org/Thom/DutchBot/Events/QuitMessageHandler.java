@@ -30,7 +30,6 @@ public class QuitMessageHandler extends MessageEventHandler {
 	    bot.quitServer("This bot was shot dead by: " + sender);
 	    System.out.println("Shutdown invoked by: " + sender + "!" + login
 		    + "@" + hostname + " in channel " + channel);
-	    bot.dispose();
 	    System.exit(0);
 	    return true;
 	}
