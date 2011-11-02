@@ -4,10 +4,9 @@ import org.Thom.DutchBot.AccessList;
 import org.Thom.DutchBot.DutchBot;
 import org.Thom.DutchBot.Privileges;
 
-public class JoinMessageHandler extends MessageEventHandler {
+public class JoinMessageHandler extends MessageEventHandlerAbstract {
 
-    @Override
-    public boolean run(DutchBot bot, String channel, String sender,
+    public boolean handle(DutchBot bot, String target, String sender,
 	    String login, String hostname, String message) {
 	if (message.startsWith("join ")
 		&& AccessList.isAllowed(login, hostname, Privileges.OPERATOR)) {
@@ -26,4 +25,5 @@ public class JoinMessageHandler extends MessageEventHandler {
 	}
 	return false;
     }
+
 }
