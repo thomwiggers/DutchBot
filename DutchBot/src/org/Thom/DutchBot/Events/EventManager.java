@@ -12,8 +12,8 @@ public class EventManager {
 
     private final DutchBot bot;
 
-    private final ArrayList<MessageEventHandler> messageEvents = new ArrayList<MessageEventHandler>();
-    private final ArrayList<JoinEventHandler> joinEvents = new ArrayList<JoinEventHandler>();
+    private final ArrayList<MessageEventHandlerAbstract> messageEvents = new ArrayList<MessageEventHandlerAbstract>();
+    private final ArrayList<JoinEventHandlerAbstract> joinEvents = new ArrayList<JoinEventHandlerAbstract>();
 
     public EventManager(DutchBot bot) {
 	this.bot = bot;
@@ -22,7 +22,7 @@ public class EventManager {
     public void invokeMessageEvents(String channel, String sender,
 	    String login, String hostname, String message) {
 	if (message.startsWith(bot.getCommandPrefix())) {
-	    for (MessageEventHandler event : messageEvents) {
+	    for (MessageEventHandlerAbstract event : messageEvents) {
 		boolean result = event.run(bot, channel, sender, login,
 			hostname, message.substring(1));
 		if (result)
@@ -67,9 +67,9 @@ public class EventManager {
 	Class<?> o = Class.forName("org.Thom.DutchBot.Events." + name + type
 		+ "Handler");
 	if (type.equalsIgnoreCase("message"))
-	    messageEvents.add((MessageEventHandler) o.newInstance());
+	    messageEvents.add((MessageEventHandlerAbstract) o.newInstance());
 	else if (type.equalsIgnoreCase("join"))
-	    joinEvents.add((JoinEventHandler) o.newInstance());
+	    joinEvents.add((JoinEventHandlerAbstract) o.newInstance());
 
     }
 }

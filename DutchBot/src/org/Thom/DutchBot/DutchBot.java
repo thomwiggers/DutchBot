@@ -3,8 +3,6 @@
  */
 package org.Thom.DutchBot;
 
-import org.Thom.DutchBot.Events.EventManager;
-
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -12,6 +10,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Timer;
 
+import org.Thom.DutchBot.Events.EventManager;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.jibble.pircbot.IrcException;
