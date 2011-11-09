@@ -26,7 +26,7 @@ public class DutchBot extends PircBot {
     /**
      * @Override
      */
-    private static final String VERSION = "0.5";
+    private static final String VERSION = "½";
 
     /**
      * contains the password for nickserv
@@ -123,6 +123,12 @@ public class DutchBot extends PircBot {
 
     }
 
+    /**
+     * Load the config files
+     * 
+     * @throws InstantiationException
+     * @throws IllegalAccessException
+     */
     private void loadConfig() throws InstantiationException,
 	    IllegalAccessException {
 	this.setEventManager(new EventManager(this));
@@ -183,6 +189,9 @@ public class DutchBot extends PircBot {
 	return this.isConnected();
     }
 
+    /**
+     * Join the autojoin channels
+     */
     private final void autoJoin() {
 	for (String channel : this._autojoinChannels)
 	    this.joinChannel(channel);
@@ -226,26 +235,53 @@ public class DutchBot extends PircBot {
 		hostname, message);
     }
 
+    /**
+     * Add a channel to the autojoin list
+     * 
+     * @param channel
+     */
     public void addAutoJoin(String channel) {
 	this._autojoinChannels.add(channel);
     }
 
+    /**
+     * Set the autojoin list
+     * 
+     * @param channels
+     */
     public void setAutoJoinList(String[] channels) {
 	this._autojoinChannels = new ArrayList<String>(Arrays.asList(channels));
     }
 
+    /**
+     * join a channel
+     * 
+     * @param channel
+     */
     public void join(String channel) {
 	Channel chan = new Channel(this, channel);
 	_channelList.put(channel, chan);
 	chan.join();
     }
 
+    /**
+     * Join a channel with a key
+     * 
+     * @param channel
+     * @param key
+     */
     public void join(String channel, String key) {
 	Channel chan = new Channel(this, channel, key);
 	_channelList.put(channel, chan);
 	chan.join();
     }
 
+    /**
+     * Get a Channel instance for channel "channel"
+     * 
+     * @param channel
+     * @return
+     */
     public Channel getChannel(String channel) {
 	return this._channelList.get(channel);
     }
