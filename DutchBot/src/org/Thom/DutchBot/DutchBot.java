@@ -79,6 +79,11 @@ public class DutchBot extends PircBot {
     private final PropertiesConfiguration _config = new PropertiesConfiguration();
 
     /**
+     * Channels the bot is active in
+     */
+    private final HashMap<String, Channel> _channelList = new HashMap<String, Channel>();
+
+    /**
      * Initializes bot.
      * 
      * @param name
@@ -227,6 +232,36 @@ public class DutchBot extends PircBot {
 
     public void setAutoJoinList(String[] channels) {
 	this._autojoinChannels = new ArrayList<String>(Arrays.asList(channels));
+    }
+
+    public void join(String channel) {
+	Channel chan = new Channel(this, channel);
+	_channelList.put(channel, chan);
+	chan.join();
+    }
+
+    public void join(String channel, String key) {
+	Channel chan = new Channel(this, channel, key);
+	_channelList.put(channel, chan);
+	chan.join();
+    }
+
+    public Channel getChannel(String channel) {
+	return this._channelList.get(channel);
+    }
+
+    @Override
+    public void onJoin(String channel, String sender, String login,
+	    String hostname) {
+	if (this.getNick().equals(sender)) {
+	    if (this._channelList.containsKey(channel))
+		this._channelList.get(channel).hasJoined();
+	    else {
+		Channel chan = new Channel(this, channel);
+		chan.hasJoined();
+		this._channelList.put(channel, chan);
+	    }
+	}
     }
 
     /**

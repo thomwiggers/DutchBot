@@ -1,5 +1,5 @@
 /**
- * 
+ * Manages channels
  */
 package org.Thom.DutchBot;
 
@@ -43,13 +43,20 @@ public class Channel {
 	return this._bot.getUsers(this._channelName);
     }
 
-    public User getUser(String nick) {
+    public User getUser(String nick) throws Exception {
+	if (!this.joined)
+	    throw new Exception("Not joined to channel");
 	for (User user : this.getUsers()) {
 	    System.out.println(user.getNick());
 	    if (user.getNick().equalsIgnoreCase(nick))
 		return user;
 	}
 	return null;
+    }
+
+    @Override
+    public String toString() {
+	return this._channelName;
     }
 
 }
