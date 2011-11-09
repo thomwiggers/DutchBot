@@ -1,10 +1,10 @@
 package org.Thom.DutchBot.Events;
 
-import org.Thom.DutchBot.DutchBot;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+
+import org.Thom.DutchBot.DutchBot;
 
 public class EventManager {
 
@@ -21,6 +21,9 @@ public class EventManager {
 
     public void invokeMessageEvents(String channel, String sender,
 	    String login, String hostname, String message) {
+	bot.getChannel(channel)
+		.processMessage(sender, login, hostname, message);
+
 	if (message.startsWith(bot.getCommandPrefix())) {
 	    for (MessageEventHandlerAbstract event : messageEvents) {
 		boolean result = event.run(bot, channel, sender, login,
