@@ -93,6 +93,7 @@ public final class AccessList {
     public static boolean isAllowed(String login, String hostname,
 	    Privileges minimumAccess) {
 	String user = login + "@" + hostname;
+	user = user.toLowerCase();
 	if (_aliasList.containsKey(user))
 	    hostname = _aliasList.get(user);
 

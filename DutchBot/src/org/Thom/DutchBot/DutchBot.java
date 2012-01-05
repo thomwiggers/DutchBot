@@ -9,6 +9,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Timer;
 
 import org.apache.commons.configuration.ConfigurationException;
@@ -111,6 +113,8 @@ public class DutchBot extends PircBot {
 	    System.err.println("The config file could not be found! ");
 	    System.exit(1);
 	}
+
+	// initialize the finals
 	this.setServerAddress(this._config.getString("server.host"));
 	this.setIrcPort(this._config.getInt("server.port", 6667));
 	this.setServerPassword(this._config.getString("server.password", ""));
@@ -123,34 +127,8 @@ public class DutchBot extends PircBot {
 	this.setOwner(this._config.getString("bot.owner", "DutchDude"));
 	this.setLogchannel(this._config.getString("bot.logchannel",
 		"#dutchdude"));
-
+	// this.addAutoJoin("#dutch");
 	this.moduleManager = new ModuleManager(this);
-	try {
-	    moduleManager.loadModule("QuitModule");
-	} catch (ClassNotFoundException e) {
-	    // TODO Auto-generated catch block
-	    e.printStackTrace();
-	} catch (NoSuchMethodException e) {
-	    // TODO Auto-generated catch block
-	    e.printStackTrace();
-	} catch (SecurityException e) {
-	    // TODO Auto-generated catch block
-	    e.printStackTrace();
-	} catch (InstantiationException e) {
-	    // TODO Auto-generated catch block
-	    e.printStackTrace();
-	} catch (IllegalAccessException e) {
-	    // TODO Auto-generated catch block
-	    e.printStackTrace();
-	} catch (IllegalArgumentException e) {
-	    // TODO Auto-generated catch block
-	    e.printStackTrace();
-	} catch (InvocationTargetException e) {
-	    // TODO Auto-generated catch block
-	    e.printStackTrace();
-	}
-
-	loadConfig();
 
     }
 
@@ -160,13 +138,69 @@ public class DutchBot extends PircBot {
      */
     private void loadConfig() {
 
-	if (this._config.containsKey("irc.autojoin"))
-	    this.setAutoJoinList(this._config.getStringArray("irc.autojoin"));
+	loadChannels();
 
 	if (this._config.containsKey("irc.nick")
-		&& this.getNick().equals(this._config.containsKey("irc.nick")))
+		&& !this.getNick().equals(
+			this._config.getString("irc.nick", "")))
 	    this.changeNick(this._config.getString("irc.nick"));
 
+    }
+
+    private void loadChannels() {
+	// join all the channels configured
+	@SuppressWarnings("unchecked")
+	Iterator<String> channels = this._config.getKeys("irc.channel");
+	while (channels.hasNext()) {
+
+	    String channelname = channels.next().toLowerCase();
+
+	    // channelname uit de keys halen
+	    int end = channelname.lastIndexOf(".");
+	    if (end == -1 || end < "irc.channel.".length())
+		end = channelname.length();
+	    channelname = channelname.substring("irc.channel.".length(), end);
+
+	    // als we hem al hebben, skippen
+	    if (this._channelList.containsKey("#" + channelname))
+		continue;
+
+	    // andere keys ophalen voor nieuwe Channel instance
+	    String key = _config.getString("irc.channel." + channelname
+		    + ".key", null);
+	    Boolean channelservInvite = _config.getBoolean("irc.channel."
+		    + channelname + ".chanservinvite", false);
+	    List<?> modules = null;
+	    if (_config.containsKey("irc.channel." + channelname + ".modules")) {
+		modules = _config.getList("irc.channel." + channelname
+			+ ".modules");
+	    }
+
+	    channelname = "#" + channelname;
+	    System.out.println("Channelname: " + channelname);
+	    Channel chan = new Channel(this, channelname, key,
+		    channelservInvite);
+
+	    // add the modules for this channel
+	    for (Object mod : modules) {
+		String name = (String) mod;
+		name = name.substring(0, 1).toUpperCase()
+			.concat(name.substring(1).toLowerCase())
+			.concat("Module");
+		try {
+		    chan.loadModule(name);
+		} catch (ClassNotFoundException | NoSuchMethodException
+			| SecurityException | InstantiationException
+			| IllegalAccessException | IllegalArgumentException
+			| InvocationTargetException e) {
+		    e.printStackTrace();
+		    System.err.println("Messed up while loading module " + name
+			    + " for channel " + channelname);
+		}
+	    }
+
+	    this.join(chan);
+	}
     }
 
     /**
@@ -203,9 +237,10 @@ public class DutchBot extends PircBot {
 	    this.identify(this.getNickservPassword());
 
 	    this.autoJoin();
-	    this.sendMessage("DutchDude", "I'm here!");
+	    // this.sendMessage("DutchDude", "I'm here!");
 
 	}
+	loadConfig();
 	return this.isConnected();
     }
 
@@ -254,8 +289,11 @@ public class DutchBot extends PircBot {
     @Override
     protected void onMessage(String channel, String sender, String login,
 	    String hostname, String message) {
-	this.moduleManager.notifyChannelEvent(channel, sender, login, hostname,
-		message);
+
+	this.moduleManager.notifyChannelMessageEvent(channel, sender, login,
+		hostname, message);
+	this.getChannel(channel).notifyChannelMessageEvent(channel, sender,
+		login, hostname, message);
     }
 
     /**
@@ -277,11 +315,22 @@ public class DutchBot extends PircBot {
     }
 
     /**
+     * Join a channel
+     * 
+     * @param channel
+     */
+    public void join(Channel channel) {
+	_channelList.put(channel.toString().toLowerCase(), channel);
+	channel.join();
+    }
+
+    /**
      * join a channel
      * 
      * @param channel
      */
     public void join(String channel) {
+	channel = channel.toLowerCase();
 	Channel chan = new Channel(this, channel);
 	_channelList.put(channel, chan);
 	chan.join();
@@ -294,6 +343,7 @@ public class DutchBot extends PircBot {
      * @param key
      */
     public void join(String channel, String key) {
+	channel = channel.toLowerCase();
 	Channel chan = new Channel(this, channel, key);
 	_channelList.put(channel, chan);
 	chan.join();
@@ -306,12 +356,14 @@ public class DutchBot extends PircBot {
      * @return
      */
     public Channel getChannel(String channel) {
+	channel = channel.toLowerCase();
 	return this._channelList.get(channel);
     }
 
     @Override
     public void onJoin(String channel, String sender, String login,
 	    String hostname) {
+	channel = channel.toLowerCase();
 	if (this.getNick().equals(sender)) {
 	    if (this._channelList.containsKey(channel))
 		this._channelList.get(channel).hasJoined();
@@ -321,6 +373,7 @@ public class DutchBot extends PircBot {
 		this._channelList.put(channel, chan);
 	    }
 	}
+
     }
 
     /**
