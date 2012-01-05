@@ -5,12 +5,12 @@ package org.Thom.DutchBot;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Timer;
 
-import org.Thom.DutchBot.Events.EventManager;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.jibble.pircbot.IrcException;
@@ -27,6 +27,16 @@ public class DutchBot extends PircBot {
      * @Override
      */
     private static final String VERSION = "½";
+
+    /**
+     * Owner of the bot
+     */
+    private String owner;
+
+    /**
+     * Log channel
+     */
+    private String logchannel;
 
     /**
      * contains the password for nickserv
@@ -69,10 +79,9 @@ public class DutchBot extends PircBot {
     private String _serverPassword;
 
     /**
-     * The eventmanager
+     * Module manager
      */
-    private EventManager _eventManager;
-
+    private final ModuleManager moduleManager;
     /**
      * Config
      */
@@ -102,7 +111,6 @@ public class DutchBot extends PircBot {
 	    System.err.println("The config file could not be found! ");
 	    System.exit(1);
 	}
-
 	this.setServerAddress(this._config.getString("server.host"));
 	this.setIrcPort(this._config.getInt("server.port", 6667));
 	this.setServerPassword(this._config.getString("server.password", ""));
@@ -112,26 +120,45 @@ public class DutchBot extends PircBot {
 	this.setLogin(this._config.getString("irc.nick", "DutchBot"));
 	_connectionProtector = new ConnectionProtectorTask(this);
 	this.getTimer().schedule(_connectionProtector, 1000L, 1000L);
+	this.setOwner(this._config.getString("bot.owner", "DutchDude"));
+	this.setLogchannel(this._config.getString("bot.logchannel",
+		"#dutchdude"));
 
+	this.moduleManager = new ModuleManager(this);
 	try {
-	    this.loadConfig();
-	} catch (InstantiationException | IllegalAccessException e) {
-	    System.err.println("Failed loading config: ");
+	    moduleManager.loadModule("QuitModule");
+	} catch (ClassNotFoundException e) {
+	    // TODO Auto-generated catch block
 	    e.printStackTrace();
-	    System.exit(1);
+	} catch (NoSuchMethodException e) {
+	    // TODO Auto-generated catch block
+	    e.printStackTrace();
+	} catch (SecurityException e) {
+	    // TODO Auto-generated catch block
+	    e.printStackTrace();
+	} catch (InstantiationException e) {
+	    // TODO Auto-generated catch block
+	    e.printStackTrace();
+	} catch (IllegalAccessException e) {
+	    // TODO Auto-generated catch block
+	    e.printStackTrace();
+	} catch (IllegalArgumentException e) {
+	    // TODO Auto-generated catch block
+	    e.printStackTrace();
+	} catch (InvocationTargetException e) {
+	    // TODO Auto-generated catch block
+	    e.printStackTrace();
 	}
+
+	loadConfig();
 
     }
 
     /**
      * Load the config files
      * 
-     * @throws InstantiationException
-     * @throws IllegalAccessException
      */
-    private void loadConfig() throws InstantiationException,
-	    IllegalAccessException {
-	this.setEventManager(new EventManager(this));
+    private void loadConfig() {
 
 	if (this._config.containsKey("irc.autojoin"))
 	    this.setAutoJoinList(this._config.getStringArray("irc.autojoin"));
@@ -140,13 +167,6 @@ public class DutchBot extends PircBot {
 		&& this.getNick().equals(this._config.containsKey("irc.nick")))
 	    this.changeNick(this._config.getString("irc.nick"));
 
-	HashMap<String, String[]> eventHandlers = new HashMap<String, String[]>();
-	for (String type : EventManager.EVENT_TYPES) {
-	    if (this._config.containsKey("bot.eventhandlers." + type))
-		eventHandlers.put(type, this._config
-			.getStringArray("bot.eventhandlers." + type));
-	}
-	this.getEventManager().addEvents(eventHandlers);
     }
 
     /**
@@ -215,8 +235,11 @@ public class DutchBot extends PircBot {
 	System.out.println("The sourcehostname: " + sourceHostname);
 
 	if (targetNick.equals(this.getNick())
-		&& AccessList.isAllowed(sourceLogin, sourceHostname,
-			Privileges.OPERATOR)) {
+		&& (AccessList.isAllowed(sourceLogin, sourceHostname,
+			Privileges.OPERATOR)
+		// also autojoin on chanserv invite
+		|| (sourceLogin.equals("services") && sourceHostname
+			.equals("what-network.net")))) {
 	    this.joinChannel(channel);
 	} else if (targetNick.equals(this.getNick())) {
 	    this.sendMessage(sourceNick,
@@ -231,8 +254,8 @@ public class DutchBot extends PircBot {
     @Override
     protected void onMessage(String channel, String sender, String login,
 	    String hostname, String message) {
-	this.getEventManager().invokeMessageEvents(channel, sender, login,
-		hostname, message);
+	this.moduleManager.notifyChannelEvent(channel, sender, login, hostname,
+		message);
     }
 
     /**
@@ -277,7 +300,7 @@ public class DutchBot extends PircBot {
     }
 
     /**
-     * Get a Channel instance for channel "channel"
+     * Get the Channel instance for channel "channel"
      * 
      * @param channel
      * @return
@@ -345,21 +368,6 @@ public class DutchBot extends PircBot {
     }
 
     /**
-     * @return the eventManager
-     */
-    public EventManager getEventManager() {
-	return _eventManager;
-    }
-
-    /**
-     * @param eventManager
-     *            the eventManager to set
-     */
-    private void setEventManager(EventManager eventManager) {
-	this._eventManager = eventManager;
-    }
-
-    /**
      * @return the serverAddress
      */
     public String getServerAddress() {
@@ -413,6 +421,29 @@ public class DutchBot extends PircBot {
      */
     public void setServerPassword(String password) {
 	this._serverPassword = password;
+    }
+
+    public String getOwner() {
+	return owner;
+    }
+
+    public void setOwner(String owner) {
+	this.owner = owner;
+    }
+
+    public String getLogchannel() {
+	return logchannel;
+    }
+
+    public void setLogchannel(String logchannel) {
+	this.logchannel = logchannel;
+    }
+
+    /**
+     * @return the moduleManager
+     */
+    public ModuleManager getModuleManager() {
+	return moduleManager;
     }
 
 }
