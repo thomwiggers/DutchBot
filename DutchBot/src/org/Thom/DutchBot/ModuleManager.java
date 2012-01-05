@@ -48,14 +48,16 @@ public final class ModuleManager {
 	args[0] = DutchBot.class;
 	ModuleAbstract m = o.getConstructor(args).newInstance(bot);
 	m.init();
-	moduleList.add(m);
+	this.moduleList.add(m);
     }
 
-    public void notifyChannelEvent(String channel, String sender, String login,
-	    String hostname, String message) {
-	for (ModuleAbstract m : moduleList)
+    public void notifyChannelMessageEvent(String channel, String sender,
+	    String login, String hostname, String message) {
+	for (ModuleAbstract m : this.moduleList) {
+	    System.out.println(m.getClass());
 	    if (m instanceof IChannelMessageEvent)
 		((IChannelMessageEvent) m).notifyChannelMessageEvent(channel,
 			sender, login, hostname, message);
+	}
     }
 }
