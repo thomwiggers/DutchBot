@@ -44,7 +44,10 @@ public class EventManager {
 		    classes.addAll(Arrays.asList(eventHandlers.get(eventType)));
 		for (String handler : classes) {
 		    currentClass = handler;
-		    this.addEvent(handler, eventType);
+		    String res = this.addEvent(handler, eventType);
+		    if (res != "")
+			throw new ClassNotFoundException("Class not found! "
+				+ handler);
 		}
 
 		// clear again
@@ -57,22 +60,24 @@ public class EventManager {
 
     }
 
-    public void addEvent(String name, String type)
-	    throws ClassNotFoundException, InstantiationException,
-	    IllegalAccessException {
-
-	name = name.substring(0, 1).toUpperCase()
-		.concat(name.substring(1).toLowerCase());
-	type = type.substring(0, 1).toUpperCase()
-		.concat(type.substring(1).toLowerCase());
-	System.out.println("org.Thom.DutchBot.Events." + name + type
-		+ "Handler");
-	Class<?> o = Class.forName("org.Thom.DutchBot.Events." + name + type
-		+ "Handler");
-	if (type.equalsIgnoreCase("message"))
-	    messageEvents.add((MessageEventHandlerAbstract) o.newInstance());
-	else if (type.equalsIgnoreCase("join"))
-	    joinEvents.add((JoinEventHandlerAbstract) o.newInstance());
-
+    public String addEvent(String name, String type) {
+	try {
+	    name = name.substring(0, 1).toUpperCase()
+		    .concat(name.substring(1).toLowerCase());
+	    type = type.substring(0, 1).toUpperCase()
+		    .concat(type.substring(1).toLowerCase());
+	    System.out.println("org.Thom.DutchBot.Events." + name + type
+		    + "Handler");
+	    Class<?> o = Class.forName("org.Thom.DutchBot.Events." + name
+		    + type + "Handler");
+	    if (type.equalsIgnoreCase("message"))
+		messageEvents
+			.add((MessageEventHandlerAbstract) o.newInstance());
+	    else if (type.equalsIgnoreCase("join"))
+		joinEvents.add((JoinEventHandlerAbstract) o.newInstance());
+	    return "";
+	} catch (Exception e) {
+	    return "ÈRROR WHILE LOADING name: " + e.getMessage();
+	}
     }
 }
