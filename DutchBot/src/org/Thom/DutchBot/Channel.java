@@ -3,8 +3,7 @@
  */
 package org.Thom.DutchBot;
 
-import java.util.Calendar;
-
+import org.jibble.pircbot.IrcException;
 import org.jibble.pircbot.User;
 
 /**
@@ -15,43 +14,43 @@ public class Channel {
 
     private final String _channelName;
     private final String _key;
+    private final boolean _chanservInvite;
     private final DutchBot _bot;
     private boolean joined = false;
-
-    private ChannelLogger _logger;
-
-    public void startLog(String id) {
-	this._logger.startLog(id + " - " + this._channelName + " - "
-		+ Calendar.getInstance().getTimeInMillis());
-    }
-
-    public void closeLog() {
-	this._logger.closeLog();
-    }
 
     public Channel(DutchBot bot, String name) {
 	this._bot = bot;
 	this._key = null;
 	this._channelName = name;
-	this._logger = new ChannelLogger(this);
+	this._chanservInvite = false;
     }
 
     public Channel(DutchBot bot, String name, String key) {
 	this._bot = bot;
 	this._key = key;
 	this._channelName = name;
+	this._chanservInvite = false;
+    }
+
+    public Channel(DutchBot bot, String name, String key, boolean chanservInvite) {
+	this._bot = bot;
+	this._key = key;
+	this._channelName = name;
+	this._chanservInvite = chanservInvite;
     }
 
     public void join() {
 	if (_key == null)
 	    this._bot.joinChannel(this._channelName);
+	else if (_chanservInvite)
+	    this._bot.sendRawLine("CS invite " + this._channelName);
 	else
 	    this._bot.joinChannel(_channelName, _key);
     }
 
     public void processMessage(String sender, String login, String host,
 	    String message) {
-	this._logger.writeLog(sender, login, host, message);
+
     }
 
     public void hasJoined() {
@@ -62,9 +61,9 @@ public class Channel {
 	return this._bot.getUsers(this._channelName);
     }
 
-    public User getUser(String nick) throws Exception {
+    public User getUser(String nick) throws IrcException {
 	if (!this.joined)
-	    throw new Exception("Not joined to channel");
+	    throw new IrcException("Not joined to channel");
 	for (User user : this.getUsers()) {
 	    System.out.println(user.getNick());
 	    if (user.getNick().equalsIgnoreCase(nick))
