@@ -91,9 +91,12 @@ public class Main {
 	}
 
 	boolean result = bot.tryConnect();
+
 	if (result)
-	    System.out.println(" Connected\n");
-	else
+	    bot.logMessage("Connected");
+	else {
 	    System.out.println(" Connecting failed :O");
+	    System.exit(1);
+	}
     }
 }

@@ -24,6 +24,13 @@ public class Channel {
      */
     private final ModuleManager modulemanager;
 
+    public void notifyChannelKickEvent(String channel, String kickerNick,
+	    String kickerLogin, String kickerHostname, String recipientNick,
+	    String reason) {
+	this.modulemanager.notifyChannelKickEvent(channel, kickerNick,
+		kickerLogin, kickerHostname, recipientNick, reason);
+    }
+
     public void notifyChannelJoinEvent(String channel, String sender,
 	    String login, String hostname) {
 	this.modulemanager.notifyChannelJoinEvent(channel, sender, login,
@@ -98,7 +105,8 @@ public class Channel {
 	    }
 	}
 	if (_chanservInvite) {
-	    System.out.println("Trying to join " + _channelName);
+	    this._bot.logMessage("Trying to join " + _channelName
+		    + " by CS invite");
 	    this._bot.sendRawLine("CS invite " + this._channelName);
 	    this._bot.joinChannel(_channelName);
 	} else
@@ -123,7 +131,6 @@ public class Channel {
 	if (!this.joined)
 	    throw new IrcException("Not joined to channel");
 	for (User user : this.getUsers()) {
-	    System.out.println(user.getNick());
 	    if (user.getNick().equalsIgnoreCase(nick))
 		return user;
 	}
