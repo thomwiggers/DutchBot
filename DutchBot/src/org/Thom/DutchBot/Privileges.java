@@ -8,7 +8,8 @@ import java.util.TreeMap;
  * 
  */
 public enum Privileges {
-    OWNER(100), OPERATOR(50), USER(0), IGNORE(-10), KILLONSIGHT(-200);
+    OWNER(100), OPERATOR(50), AUTORIZED(10), USER(0), IGNORE(-10), KILLONSIGHT(
+	    -200);
 
     private final int Privilegelevel;
 

@@ -1,5 +1,8 @@
-/**
- * 
+/*
+ *  Dutchbot, a bot for What-Network.
+ *  
+ *  
+ *  
  */
 package org.Thom.DutchBot;
 
@@ -94,6 +97,8 @@ public class DutchBot extends PircBot {
      */
     private final HashMap<String, Channel> _channelList = new HashMap<String, Channel>();
 
+    // TODO add bot.globalmodules loading
+
     /**
      * Initializes bot.
      * 
@@ -127,7 +132,6 @@ public class DutchBot extends PircBot {
 	this.setOwner(this._config.getString("bot.owner", "DutchDude"));
 	this.setLogchannel(this._config.getString("bot.logchannel",
 		"#dutchdude"));
-	// this.addAutoJoin("#dutch");
 	this.moduleManager = new ModuleManager(this);
 
     }
@@ -266,24 +270,15 @@ public class DutchBot extends PircBot {
     protected void onInvite(String targetNick, String sourceNick,
 	    String sourceLogin, String sourceHostname, String channel) {
 
-	System.out.println("Invited to channel " + channel);
-	System.out.println("The sourcehostname: " + sourceHostname);
+	this.moduleManager.notifyInviteEvent(targetNick, sourceNick,
+		sourceLogin, sourceHostname, channel);
+    }
 
-	if (targetNick.equals(this.getNick())
-		&& (AccessList.isAllowed(sourceLogin, sourceHostname,
-			Privileges.OPERATOR)
-		// also autojoin on chanserv invite
-		|| (sourceLogin.equals("services") && sourceHostname
-			.equals("what-network.net")))) {
-	    this.joinChannel(channel);
-	} else if (targetNick.equals(this.getNick())) {
-	    this.sendMessage(sourceNick,
-		    "Never accept an invitation from a stranger unless he gives you candy.");
-	    this.sendMessage(sourceNick, "   -- Linda Festa");
-	}
-
-	if (channel.equals("#blackdeath"))
-	    this.quitServer("Secret quit invoked by " + sourceNick);
+    @Override
+    protected void onPrivateMessage(String sender, String login,
+	    String hostname, String message) {
+	this.moduleManager.notifyPrivateMessageEvent(sender, login, hostname,
+		message);
     }
 
     @Override
@@ -373,6 +368,11 @@ public class DutchBot extends PircBot {
 		this._channelList.put(channel, chan);
 	    }
 	}
+
+	this.moduleManager.notifyChannelJoinEvent(channel, sender, login,
+		hostname);
+	this.getChannel(channel).notifyChannelJoinEvent(channel, sender, login,
+		hostname);
 
     }
 
@@ -497,6 +497,14 @@ public class DutchBot extends PircBot {
      */
     public ModuleManager getModuleManager() {
 	return moduleManager;
+    }
+
+    /**
+     * 
+     * @return the config
+     */
+    public PropertiesConfiguration getConfig() {
+	return this._config;
     }
 
 }
