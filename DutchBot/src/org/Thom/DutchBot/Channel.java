@@ -24,6 +24,12 @@ public class Channel {
      */
     private final ModuleManager modulemanager;
 
+    public void notifyChannelJoinEvent(String channel, String sender,
+	    String login, String hostname) {
+	this.modulemanager.notifyChannelJoinEvent(channel, sender, login,
+		hostname);
+    }
+
     /**
      * Delegate to modulemanager
      * 

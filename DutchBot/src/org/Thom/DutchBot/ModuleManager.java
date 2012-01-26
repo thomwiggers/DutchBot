@@ -3,7 +3,10 @@ package org.Thom.DutchBot;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 
+import org.Thom.DutchBot.Modules.IChannelJoinEvent;
 import org.Thom.DutchBot.Modules.IChannelMessageEvent;
+import org.Thom.DutchBot.Modules.IInviteEvent;
+import org.Thom.DutchBot.Modules.IPrivateMessageEvent;
 import org.Thom.DutchBot.Modules.ModuleAbstract;
 
 public final class ModuleManager {
@@ -59,5 +62,40 @@ public final class ModuleManager {
 		((IChannelMessageEvent) m).notifyChannelMessageEvent(channel,
 			sender, login, hostname, message);
 	}
+    }
+
+    public void notifyChannelJoinEvent(String channel, String sender,
+	    String login, String hostname) {
+
+	for (ModuleAbstract m : this.moduleList) {
+	    System.out.println(m.getClass());
+	    if (m instanceof IChannelJoinEvent)
+		((IChannelJoinEvent) m).notifyChannelJoinEvent(channel, sender,
+			login, hostname);
+	}
+
+    }
+
+    public void notifyPrivateMessageEvent(String sender, String login,
+	    String hostname, String message) {
+
+	for (ModuleAbstract m : this.moduleList) {
+	    System.out.println(m.getClass());
+	    if (m instanceof IPrivateMessageEvent)
+		((IPrivateMessageEvent) m).notifyPrivateMessageEvent(sender,
+			login, hostname, message);
+	}
+
+    }
+
+    public void notifyInviteEvent(String targetNick, String sourceNick,
+	    String sourceLogin, String sourceHostname, String channel) {
+	for (ModuleAbstract m : this.moduleList) {
+	    System.out.println(m.getClass());
+	    if (m instanceof IInviteEvent)
+		((IInviteEvent) m).notifyInviteEvent(targetNick, sourceNick,
+			sourceLogin, sourceHostname, channel);
+	}
+
     }
 }
