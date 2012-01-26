@@ -9,8 +9,6 @@ package org.Thom.DutchBot;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -47,11 +45,6 @@ public class DutchBot extends PircBot {
      * contains the password for nickserv
      */
     private String _nickservPassword;
-
-    /**
-     * Channels the bot should autojoin
-     */
-    private ArrayList<String> _autojoinChannels = new ArrayList<String>();
 
     /**
      * Timer Utility
@@ -97,8 +90,6 @@ public class DutchBot extends PircBot {
      */
     private final HashMap<String, Channel> _channelList = new HashMap<String, Channel>();
 
-    // TODO add bot.globalmodules loading
-
     /**
      * Initializes bot.
      * 
@@ -109,13 +100,16 @@ public class DutchBot extends PircBot {
 
 	try {
 	    this._config.load(configfile);
+	    this._config.setAutoSave(true);
+	    this._config.setFileName(configfile);
 	    AccessList.loadFromConfig(configfile);
+	    AccessList.setBot(this);
 	} catch (ConfigurationException e) {
-	    System.err.println("There was an error with your config file! ");
+	    this.logMessage("There was an error with your config file! ", true);
 	    e.printStackTrace();
 	    System.exit(1);
 	} catch (FileNotFoundException e) {
-	    System.err.println("The config file could not be found! ");
+	    this.logMessage("The config file could not be found! ", true);
 	    System.exit(1);
 	}
 
@@ -129,9 +123,8 @@ public class DutchBot extends PircBot {
 	this.setLogin(this._config.getString("irc.nick", "DutchBot"));
 	_connectionProtector = new ConnectionProtectorTask(this);
 	this.getTimer().schedule(_connectionProtector, 1000L, 1000L);
-	this.setOwner(this._config.getString("bot.owner", "DutchDude"));
-	this.setLogchannel(this._config.getString("bot.logchannel",
-		"#dutchdude"));
+	this.setOwner(this._config.getString("bot.owner", ""));
+	this.setLogchannel(this._config.getString("bot.logchannel", ""));
 	this.moduleManager = new ModuleManager(this);
 
     }
@@ -149,8 +142,36 @@ public class DutchBot extends PircBot {
 			this._config.getString("irc.nick", "")))
 	    this.changeNick(this._config.getString("irc.nick"));
 
+	if (this._config.containsKey("bot.globalmodules"))
+	    for (Object m : this._config.getList("bot.globalmodules").toArray()) {
+
+		String module = m.toString().substring(0, 1).toUpperCase()
+			+ m.toString().substring(1) + "Module";
+		try {
+		    this.moduleManager.loadModule(module);
+		} catch (ClassNotFoundException | NoSuchMethodException
+			| SecurityException | InstantiationException
+			| IllegalAccessException | IllegalArgumentException
+			| InvocationTargetException e) {
+		    this.logMessage("loading global module " + m + " failed",
+			    true);
+		    this.logMessage(e.getMessage(), true);
+		    e.printStackTrace();
+		}
+	    }
+	if (this._config.containsKey("db.database")
+		&& this._config.containsKey("db.username")
+		&& this._config.containsKey("db.password"))
+	    DatabaseConnection.getInstance().connect(
+		    this._config.getString("db.database"),
+		    this._config.getString("db.username"),
+		    this._config.getString("db.password"));
+
     }
 
+    /**
+     * Load the channels from the config.
+     */
     private void loadChannels() {
 	// join all the channels configured
 	@SuppressWarnings("unchecked")
@@ -181,7 +202,7 @@ public class DutchBot extends PircBot {
 	    }
 
 	    channelname = "#" + channelname;
-	    System.out.println("Channelname: " + channelname);
+	    this.logMessage("Joinging Channel: " + channelname);
 	    Channel chan = new Channel(this, channelname, key,
 		    channelservInvite);
 
@@ -198,13 +219,35 @@ public class DutchBot extends PircBot {
 			| IllegalAccessException | IllegalArgumentException
 			| InvocationTargetException e) {
 		    e.printStackTrace();
-		    System.err.println("Messed up while loading module " + name
-			    + " for channel " + channelname);
+		    this.logMessage("Messed up while loading module " + name
+			    + " for channel " + channelname, true);
+		    this.logMessage(e.getMessage());
 		}
 	    }
 
 	    this.join(chan);
 	}
+    }
+
+    public final void logMessage(String message) {
+	this.logMessage(message, false);
+    }
+
+    /**
+     * Log an error
+     * 
+     * @param message
+     * @param error
+     */
+    public final void logMessage(String message, boolean notice) {
+	if (notice) {
+	    message = "**notice** " + message;
+	    if (!this.getLogchannel().isEmpty())
+		this.sendMessage(this.getLogchannel(), message);
+	    if (!this.getOwner().isEmpty())
+		this.sendMessage(this.getOwner(), message);
+	}
+	super.log("### " + message);
     }
 
     /**
@@ -231,29 +274,15 @@ public class DutchBot extends PircBot {
 		}
 		this.changeNick(nick);
 	    } catch (NickAlreadyInUseException e) {
-		System.err
-			.print("********************** ERROR ****************************\n");
-		System.err
-			.print(" ->  Nick already in use - switching nicks failed\n\n");
-
+		this.logMessage("Nick already in use - switching nicks failed",
+			true);
 		return false;
 	    }
 	    this.identify(this.getNickservPassword());
 
-	    this.autoJoin();
-	    // this.sendMessage("DutchDude", "I'm here!");
-
 	}
 	loadConfig();
 	return this.isConnected();
-    }
-
-    /**
-     * Join the autojoin channels
-     */
-    private final void autoJoin() {
-	for (String channel : this._autojoinChannels)
-	    this.joinChannel(channel);
     }
 
     /**
@@ -291,22 +320,15 @@ public class DutchBot extends PircBot {
 		login, hostname, message);
     }
 
-    /**
-     * Add a channel to the autojoin list
-     * 
-     * @param channel
-     */
-    public void addAutoJoin(String channel) {
-	this._autojoinChannels.add(channel);
-    }
+    @Override
+    protected void onKick(String channel, String kickerNick,
+	    String kickerLogin, String kickerHostname, String recipientNick,
+	    String reason) {
+	this.moduleManager.notifyChannelKickEvent(channel, kickerNick,
+		kickerLogin, kickerHostname, recipientNick, reason);
+	this.getChannel(channel).notifyChannelKickEvent(channel, kickerNick,
+		kickerLogin, kickerHostname, recipientNick, reason);
 
-    /**
-     * Set the autojoin list
-     * 
-     * @param channels
-     */
-    public void setAutoJoinList(String[] channels) {
-	this._autojoinChannels = new ArrayList<String>(Arrays.asList(channels));
     }
 
     /**

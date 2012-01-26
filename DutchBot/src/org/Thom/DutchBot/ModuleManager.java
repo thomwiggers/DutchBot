@@ -4,6 +4,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 
 import org.Thom.DutchBot.Modules.IChannelJoinEvent;
+import org.Thom.DutchBot.Modules.IChannelKickEvent;
 import org.Thom.DutchBot.Modules.IChannelMessageEvent;
 import org.Thom.DutchBot.Modules.IInviteEvent;
 import org.Thom.DutchBot.Modules.IPrivateMessageEvent;
@@ -57,7 +58,6 @@ public final class ModuleManager {
     public void notifyChannelMessageEvent(String channel, String sender,
 	    String login, String hostname, String message) {
 	for (ModuleAbstract m : this.moduleList) {
-	    System.out.println(m.getClass());
 	    if (m instanceof IChannelMessageEvent)
 		((IChannelMessageEvent) m).notifyChannelMessageEvent(channel,
 			sender, login, hostname, message);
@@ -66,9 +66,7 @@ public final class ModuleManager {
 
     public void notifyChannelJoinEvent(String channel, String sender,
 	    String login, String hostname) {
-
 	for (ModuleAbstract m : this.moduleList) {
-	    System.out.println(m.getClass());
 	    if (m instanceof IChannelJoinEvent)
 		((IChannelJoinEvent) m).notifyChannelJoinEvent(channel, sender,
 			login, hostname);
@@ -78,9 +76,9 @@ public final class ModuleManager {
 
     public void notifyPrivateMessageEvent(String sender, String login,
 	    String hostname, String message) {
-
+	this.bot.logMessage("Triggered PrivateMessageEvent from " + sender
+		+ ": " + message);
 	for (ModuleAbstract m : this.moduleList) {
-	    System.out.println(m.getClass());
 	    if (m instanceof IPrivateMessageEvent)
 		((IPrivateMessageEvent) m).notifyPrivateMessageEvent(sender,
 			login, hostname, message);
@@ -91,10 +89,21 @@ public final class ModuleManager {
     public void notifyInviteEvent(String targetNick, String sourceNick,
 	    String sourceLogin, String sourceHostname, String channel) {
 	for (ModuleAbstract m : this.moduleList) {
-	    System.out.println(m.getClass());
 	    if (m instanceof IInviteEvent)
 		((IInviteEvent) m).notifyInviteEvent(targetNick, sourceNick,
 			sourceLogin, sourceHostname, channel);
+	}
+
+    }
+
+    public void notifyChannelKickEvent(String channel, String kickerNick,
+	    String kickerLogin, String kickerHostname, String recipientNick,
+	    String reason) {
+	for (ModuleAbstract m : this.moduleList) {
+	    if (m instanceof IChannelKickEvent)
+		((IChannelKickEvent) m).notifyChannelKickEvent(channel,
+			kickerNick, kickerLogin, kickerHostname, recipientNick,
+			reason);
 	}
 
     }

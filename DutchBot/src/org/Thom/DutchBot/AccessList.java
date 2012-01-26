@@ -3,7 +3,6 @@
  */
 package org.Thom.DutchBot;
 
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -21,6 +20,7 @@ public final class AccessList {
     private static HashMap<String, String> _aliasList = new HashMap<String, String>();
     private static HashMap<String, Privileges> _accessList = new HashMap<String, Privileges>();
     private static PropertiesConfiguration config = new PropertiesConfiguration();
+    private static DutchBot bot;
 
     public static void addUser(String login, String hostname, Privileges level) {
 
@@ -30,11 +30,16 @@ public final class AccessList {
 	    user = _aliasList.get(user);
 	}
 	_accessList.put(user.toLowerCase(), level);
-
+	System.out.println("Registered " + user);
 	// update config
 	if (config.containsKey("acl." + user))
 	    config.clearProperty("acl." + user);
 	config.addProperty("acl." + user, level.getValue());
+	try {
+	    config.save();
+	} catch (ConfigurationException e) {
+	    bot.logMessage("Failed to write config " + e.getMessage(), true);
+	}
 
     }
 
@@ -65,17 +70,15 @@ public final class AccessList {
 	    throws ConfigurationException, FileNotFoundException {
 	config.setAutoSave(true);
 	config.setThrowExceptionOnMissing(true);
-	FileInputStream ifp = new FileInputStream(configfile);
-	config.load(ifp);
+	config.setFileName(configfile);
+	config.load();
 
 	@SuppressWarnings("rawtypes")
 	Iterator keys = config.getKeys("acl");
 	while (keys.hasNext()) {
-	    System.out.println("Adding key!");
 	    String key = keys.next().toString();
 	    String host = String.copyValueOf(key.toCharArray(), 4,
 		    key.toString().length() - 4).toLowerCase();
-	    System.out.println("Key: " + key);
 	    Privileges axx = Privileges.lookup((config.getInt(key)));
 	    _accessList.put(host, axx);
 	}
@@ -103,10 +106,18 @@ public final class AccessList {
 	}
 
 	if (userAccess.getValue() >= minimumAccess.getValue()) {
-	    System.out.println("Authorized user");
+	    bot.logMessage("Authorized user " + user);
 	    return true;
 	}
 
 	return false;
+    }
+
+    /**
+     * @param bot
+     *            the bot to set
+     */
+    public static void setBot(DutchBot bot) {
+	AccessList.bot = bot;
     }
 }
