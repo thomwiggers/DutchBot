@@ -17,6 +17,9 @@ public final class ModuleManager {
      */
     private final DutchBot bot;
 
+    /**
+     * List with modules
+     */
     private final ArrayList<ModuleAbstract> moduleList = new ArrayList<ModuleAbstract>();
 
     /**
@@ -55,6 +58,15 @@ public final class ModuleManager {
 	this.moduleList.add(m);
     }
 
+    /**
+     * Notify the loaded modules implementing IChannelMessageEvent of an event
+     * 
+     * @param channel
+     * @param sender
+     * @param login
+     * @param hostname
+     * @param message
+     */
     public void notifyChannelMessageEvent(String channel, String sender,
 	    String login, String hostname, String message) {
 	for (ModuleAbstract m : this.moduleList) {
@@ -64,6 +76,14 @@ public final class ModuleManager {
 	}
     }
 
+    /**
+     * Notify the loaded modules implementing IChannelJoinEvent of an event
+     * 
+     * @param channel
+     * @param sender
+     * @param login
+     * @param hostname
+     */
     public void notifyChannelJoinEvent(String channel, String sender,
 	    String login, String hostname) {
 	for (ModuleAbstract m : this.moduleList) {
@@ -74,6 +94,14 @@ public final class ModuleManager {
 
     }
 
+    /**
+     * Notify the loaded modules implementing IPrivateMessageEvent of an event
+     * 
+     * @param sender
+     * @param login
+     * @param hostname
+     * @param message
+     */
     public void notifyPrivateMessageEvent(String sender, String login,
 	    String hostname, String message) {
 	this.bot.logMessage("Triggered PrivateMessageEvent from " + sender
@@ -86,6 +114,15 @@ public final class ModuleManager {
 
     }
 
+    /**
+     * Notify the loaded modules implementing IInviteEvent of an invite
+     * 
+     * @param targetNick
+     * @param sourceNick
+     * @param sourceLogin
+     * @param sourceHostname
+     * @param channel
+     */
     public void notifyInviteEvent(String targetNick, String sourceNick,
 	    String sourceLogin, String sourceHostname, String channel) {
 	for (ModuleAbstract m : this.moduleList) {
@@ -96,6 +133,16 @@ public final class ModuleManager {
 
     }
 
+    /**
+     * Notify the loaded modules implementing IChannelKickEvent of an event
+     * 
+     * @param channel
+     * @param kickerNick
+     * @param kickerLogin
+     * @param kickerHostname
+     * @param recipientNick
+     * @param reason
+     */
     public void notifyChannelKickEvent(String channel, String kickerNick,
 	    String kickerLogin, String kickerHostname, String recipientNick,
 	    String reason) {
