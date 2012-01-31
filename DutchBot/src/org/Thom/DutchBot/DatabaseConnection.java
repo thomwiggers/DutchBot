@@ -16,6 +16,10 @@ import java.sql.Statement;
  */
 public class DatabaseConnection {
     private Connection db = null;
+
+    /**
+     * store the instance of the object
+     */
     private static DatabaseConnection instance = null;
 
     public static DatabaseConnection getInstance() {

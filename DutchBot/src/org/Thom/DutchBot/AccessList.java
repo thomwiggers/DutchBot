@@ -11,17 +11,36 @@ import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
 
 /**
+ * Class that manages the accesslist
+ * 
  * @author Thom
  * 
  */
-
 public final class AccessList {
-
+    /**
+     * List with aliases
+     */
     private static HashMap<String, String> _aliasList = new HashMap<String, String>();
+    /**
+     * List with hostmasks and their privilege levels
+     */
     private static HashMap<String, Privileges> _accessList = new HashMap<String, Privileges>();
+    /**
+     * Config object
+     */
     private static PropertiesConfiguration config = new PropertiesConfiguration();
+    /**
+     * The active DutchBot instance
+     */
     private static DutchBot bot;
 
+    /**
+     * Add a user to the access list
+     * 
+     * @param login
+     * @param hostname
+     * @param level
+     */
     public static void addUser(String login, String hostname, Privileges level) {
 
 	String user = login + "@" + hostname;
@@ -43,6 +62,15 @@ public final class AccessList {
 
     }
 
+    /**
+     * Add an alias to the alias list
+     * 
+     * @param aliasLogin
+     * @param aliasHostname
+     * @param originalLogin
+     * @param originalHostname
+     * @throws AccessListException
+     */
     public static void addAlias(String aliasLogin, String aliasHostname,
 	    String originalLogin, String originalHostname)
 	    throws AccessListException {
@@ -62,10 +90,23 @@ public final class AccessList {
 
     }
 
+    /**
+     * Delete a user from the access list
+     * 
+     * @param login
+     * @param hostname
+     */
     public static void delUser(String login, String hostname) {
 	_accessList.remove(login + "@" + hostname);
     }
 
+    /**
+     * Load the configuration
+     * 
+     * @param configfile
+     * @throws ConfigurationException
+     * @throws FileNotFoundException
+     */
     public static void loadFromConfig(String configfile)
 	    throws ConfigurationException, FileNotFoundException {
 	config.setAutoSave(true);
@@ -93,6 +134,14 @@ public final class AccessList {
 
     }
 
+    /**
+     * Validate if a user has the minimumAccess Level
+     * 
+     * @param login
+     * @param hostname
+     * @param minimumAccess
+     * @return returns if is the user allowed the access level
+     */
     public static boolean isAllowed(String login, String hostname,
 	    Privileges minimumAccess) {
 	String user = login + "@" + hostname;

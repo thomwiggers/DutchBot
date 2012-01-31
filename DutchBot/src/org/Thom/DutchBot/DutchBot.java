@@ -295,6 +295,9 @@ public class DutchBot extends PircBot {
 		+ this.getNickservPassword());
     }
 
+    /**
+     * Runs on invite
+     */
     @Override
     protected void onInvite(String targetNick, String sourceNick,
 	    String sourceLogin, String sourceHostname, String channel) {
@@ -303,6 +306,9 @@ public class DutchBot extends PircBot {
 		sourceLogin, sourceHostname, channel);
     }
 
+    /**
+     * Runs on PM
+     */
     @Override
     protected void onPrivateMessage(String sender, String login,
 	    String hostname, String message) {
@@ -310,6 +316,9 @@ public class DutchBot extends PircBot {
 		message);
     }
 
+    /**
+     * Runs on message
+     */
     @Override
     protected void onMessage(String channel, String sender, String login,
 	    String hostname, String message) {
@@ -320,6 +329,9 @@ public class DutchBot extends PircBot {
 		login, hostname, message);
     }
 
+    /**
+     * Runs on Kick
+     */
     @Override
     protected void onKick(String channel, String kickerNick,
 	    String kickerLogin, String kickerHostname, String recipientNick,
@@ -432,12 +444,19 @@ public class DutchBot extends PircBot {
     }
 
     /**
+     * Returns the command prefix
+     * 
      * @return the commandPrefix
      */
     public String getCommandPrefix() {
 	return _commandPrefix;
     }
 
+    /**
+     * Sets the command prefix
+     * 
+     * @param prefix
+     */
     public void setCommandPrefix(String prefix) {
 	this._commandPrefix = prefix;
     }
@@ -498,18 +517,38 @@ public class DutchBot extends PircBot {
 	this._serverPassword = password;
     }
 
+    /**
+     * Returns the owner
+     * 
+     * @return
+     */
     public String getOwner() {
 	return owner;
     }
 
+    /**
+     * Sets the owner
+     * 
+     * @param owner
+     */
     public void setOwner(String owner) {
 	this.owner = owner;
     }
 
+    /**
+     * Gets the log channel
+     * 
+     * @return
+     */
     public String getLogchannel() {
 	return logchannel;
     }
 
+    /**
+     * Sets the log channel
+     * 
+     * @param logchannel
+     */
     public void setLogchannel(String logchannel) {
 	this.logchannel = logchannel;
     }
