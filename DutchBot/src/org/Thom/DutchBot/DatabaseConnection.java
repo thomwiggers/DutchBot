@@ -11,10 +11,16 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 /**
+ * Manager for the database
+ * 
  * @author Thom
  * 
  */
 public class DatabaseConnection {
+
+    /**
+     * Container for the singleton instance
+     */
     private Connection db = null;
 
     /**
@@ -22,6 +28,11 @@ public class DatabaseConnection {
      */
     private static DatabaseConnection instance = null;
 
+    /**
+     * Singleton accessor
+     * 
+     * @return DatabaseConnection instance
+     */
     public static DatabaseConnection getInstance() {
 	if (instance == null) {
 	    instance = new DatabaseConnection();
@@ -29,6 +40,20 @@ public class DatabaseConnection {
 	return instance;
     }
 
+    /**
+     * Singleton constructor
+     */
+    private DatabaseConnection() {
+
+    }
+
+    /**
+     * Connect to the db
+     * 
+     * @param database
+     * @param username
+     * @param password
+     */
     public void connect(String database, String username, String password) {
 	try {
 	    this.db = DriverManager.getConnection("jdbc:postgresql://rded.nl/"
@@ -41,6 +66,12 @@ public class DatabaseConnection {
 
     }
 
+    /**
+     * Query the db
+     * 
+     * @param query
+     * @return resultset of the query
+     */
     public ResultSet query(String query) {
 	try {
 	    Statement s = db.createStatement();
