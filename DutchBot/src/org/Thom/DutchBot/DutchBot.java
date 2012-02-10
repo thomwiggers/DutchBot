@@ -135,8 +135,6 @@ public class DutchBot extends PircBot {
      */
     private void loadConfig() {
 
-	loadChannels();
-
 	if (this._config.containsKey("irc.nick")
 		&& !this.getNick().equals(
 			this._config.getString("irc.nick", "")))
@@ -163,10 +161,11 @@ public class DutchBot extends PircBot {
 		&& this._config.containsKey("db.username")
 		&& this._config.containsKey("db.password"))
 	    DatabaseConnection.getInstance().connect(
+		    this._config.getString("db.host"),
 		    this._config.getString("db.database"),
 		    this._config.getString("db.username"),
 		    this._config.getString("db.password"));
-
+	loadChannels();
     }
 
     /**
@@ -207,24 +206,25 @@ public class DutchBot extends PircBot {
 		    channelservInvite);
 
 	    // add the modules for this channel
-	    for (Object mod : modules) {
-		String name = (String) mod;
-		name = name.substring(0, 1).toUpperCase()
-			.concat(name.substring(1).toLowerCase())
-			.concat("Module");
-		try {
-		    chan.loadModule(name);
-		} catch (ClassNotFoundException | NoSuchMethodException
-			| SecurityException | InstantiationException
-			| IllegalAccessException | IllegalArgumentException
-			| InvocationTargetException e) {
-		    e.printStackTrace();
-		    this.logMessage("Messed up while loading module " + name
-			    + " for channel " + channelname, true);
-		    this.logMessage(e.getMessage());
+	    if (modules != null) {
+		for (Object mod : modules) {
+		    String name = (String) mod;
+		    name = name.substring(0, 1).toUpperCase()
+			    .concat(name.substring(1).toLowerCase())
+			    .concat("Module");
+		    try {
+			chan.loadModule(name);
+		    } catch (ClassNotFoundException | NoSuchMethodException
+			    | SecurityException | InstantiationException
+			    | IllegalAccessException | IllegalArgumentException
+			    | InvocationTargetException e) {
+			e.printStackTrace();
+			this.logMessage("Messed up while loading module "
+				+ name + " for channel " + channelname, true);
+			this.logMessage(e.getMessage());
+		    }
 		}
 	    }
-
 	    this.join(chan);
 	}
     }

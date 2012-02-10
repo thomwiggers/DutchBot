@@ -25,6 +25,7 @@ irc.nick DutchBot
 ######
 # DB #
 ######
+db.host rded.nl
 db.database DutchBot
 db.username	dutchbot
 db.password foobar

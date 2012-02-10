@@ -54,11 +54,12 @@ public class DatabaseConnection {
      * @param username
      * @param password
      */
-    public void connect(String database, String username, String password) {
+    public void connect(String host, String database, String username,
+	    String password) {
 	try {
-	    this.db = DriverManager.getConnection("jdbc:postgresql://rded.nl/"
-		    + database + "?user=" + username + "&password=" + password
-		    + "&ssl=true"
+	    this.db = DriverManager.getConnection("jdbc:postgresql://" + host
+		    + "/" + database + "?user=" + username + "&password="
+		    + password + "&ssl=true"
 		    + "&sslfactory=org.postgresql.ssl.NonValidatingFactory");
 	} catch (SQLException e) {
 	    e.printStackTrace();
