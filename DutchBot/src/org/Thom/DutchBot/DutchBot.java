@@ -165,6 +165,7 @@ public class DutchBot extends PircBot {
 		    this._config.getString("db.database"),
 		    this._config.getString("db.username"),
 		    this._config.getString("db.password"));
+
 	loadChannels();
     }
 

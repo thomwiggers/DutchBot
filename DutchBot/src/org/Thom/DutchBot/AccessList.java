@@ -78,7 +78,7 @@ public final class AccessList {
 	String originalUser = originalLogin + "@" + originalHostname;
 	String aliasUser = aliasLogin + "@" + aliasHostname;
 
-	if (!_accessList.containsValue(originalUser))
+	if (!_accessList.containsKey(originalUser))
 	    throw new AccessListException(
 		    "Can't add an alias to a nick that does not exist!");
 
@@ -147,7 +147,7 @@ public final class AccessList {
 	String user = login + "@" + hostname;
 	user = user.toLowerCase();
 	if (_aliasList.containsKey(user))
-	    hostname = _aliasList.get(user);
+	    user = _aliasList.get(user);
 
 	Privileges userAccess = Privileges.USER;
 	if (_accessList.containsKey(user)) {

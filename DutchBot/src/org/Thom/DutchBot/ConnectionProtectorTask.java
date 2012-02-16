@@ -34,7 +34,7 @@ public class ConnectionProtectorTask extends TimerTask {
 	if (!this.bot.isConnected() && this.wasConnected) {
 	    System.out.println("Reconnecting...");
 	    try {
-		bot.reconnect();
+		bot.tryConnect();
 	    } catch (IrcException e) {
 		e.printStackTrace();
 	    } catch (IOException e) {
