@@ -166,13 +166,28 @@ public class DutchBot extends PircBot {
 		    this._config.getString("db.username"),
 		    this._config.getString("db.password"));
 
+	droneLogin();
+
 	loadChannels();
+    }
+
+    /**
+     * Logs in with drone
+     */
+    private void droneLogin() {
+	if (this._config.containsKey("drone.username")
+		&& this._config.containsKey("drone.password"))
+	    this.sendMessage("drone",
+		    "identify " + this._config.getString("drone.username")
+			    + " " + this._config.getString("drone.password"));
     }
 
     /**
      * Load the channels from the config.
      */
     private void loadChannels() {
+	this._channelList.clear();
+
 	// join all the channels configured
 	@SuppressWarnings("unchecked")
 	Iterator<String> channels = this._config.getKeys("irc.channel");
@@ -282,6 +297,7 @@ public class DutchBot extends PircBot {
 	    this.identify(this.getNickservPassword());
 
 	}
+
 	loadConfig();
 	return this.isConnected();
     }
@@ -335,6 +351,35 @@ public class DutchBot extends PircBot {
 		hostname, message);
 	this.getChannel(channel).notifyChannelMessageEvent(channel, sender,
 		login, hostname, message);
+
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.jibble.pircbot.PircBot#onQuit(java.lang.String,
+     * java.lang.String, java.lang.String, java.lang.String)
+     */
+    @Override
+    protected void onQuit(String sourceNick, String sourceLogin,
+	    String sourceHostname, String reason) {
+	this.moduleManager.notifyQuitEvent(sourceNick, sourceLogin,
+		sourceHostname, reason);
+	for (Channel c : this._channelList.values()) {
+	    c.notifyQuitEvent(sourceNick, sourceLogin, sourceHostname, reason);
+	}
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.jibble.pircbot.PircBot#onTopic(java.lang.String,
+     * java.lang.String, java.lang.String, long, boolean)
+     */
+    @Override
+    protected void onTopic(String channel, String topic, String setBy,
+	    long date, boolean changed) {
+	this.getChannel(channel).setTopic(topic);
     }
 
     /**

@@ -95,9 +95,17 @@ public final class AccessList {
      * 
      * @param login
      * @param hostname
+     * @throws AccessListException
      */
-    public static void delUser(String login, String hostname) {
+    public static void delUser(String login, String hostname)
+	    throws AccessListException {
 	_accessList.remove(login + "@" + hostname);
+	config.clearProperty(login + "@" + hostname);
+	try {
+	    config.save();
+	} catch (ConfigurationException e) {
+	    throw new AccessListException(e.getMessage());
+	}
     }
 
     /**

@@ -8,6 +8,7 @@ import org.Thom.DutchBot.Modules.IChannelKickEvent;
 import org.Thom.DutchBot.Modules.IChannelMessageEvent;
 import org.Thom.DutchBot.Modules.IInviteEvent;
 import org.Thom.DutchBot.Modules.IPrivateMessageEvent;
+import org.Thom.DutchBot.Modules.IQuitEvent;
 import org.Thom.DutchBot.Modules.ModuleAbstract;
 
 public final class ModuleManager {
@@ -151,6 +152,22 @@ public final class ModuleManager {
 		((IChannelKickEvent) m).notifyChannelKickEvent(channel,
 			kickerNick, kickerLogin, kickerHostname, recipientNick,
 			reason);
+	}
+
+    }
+
+    /**
+     * @param sourceNick
+     * @param sourceLogin
+     * @param sourceHostname
+     * @param reason
+     */
+    public void notifyQuitEvent(String sourceNick, String sourceLogin,
+	    String sourceHostname, String reason) {
+	for (ModuleAbstract m : this.moduleList) {
+	    if (m instanceof IQuitEvent)
+		((IQuitEvent) m).notifyQuitEvent(sourceNick, sourceLogin,
+			sourceHostname, reason);
 	}
 
     }

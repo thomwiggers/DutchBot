@@ -14,11 +14,27 @@ import org.jibble.pircbot.User;
  */
 public class Channel {
 
-    private final String _channelName;
-    private final String _key;
-    private final boolean _chanservInvite;
-    private final DutchBot _bot;
+    /**
+     * channel name
+     */
+    private final String channelName;
+    /**
+     * channel key
+     */
+    private final String key;
+    /**
+     * Do we need to use chanserv?
+     */
+    private final boolean chanservInvite;
+    /**
+     * Bot instance
+     */
+    private final DutchBot bot;
 
+    /**
+     * Channel topic
+     */
+    private String topic;
     /**
      * Module manager:
      */
@@ -71,47 +87,57 @@ public class Channel {
 	modulemanager.loadModule(module);
     }
 
+    public void notifyQuitEvent(String sourceNick, String sourceLogin,
+	    String sourceHostname, String reason) {
+	this.modulemanager.notifyQuitEvent(sourceNick, sourceLogin,
+		sourceHostname, reason);
+    }
+
     private boolean joined = false;
 
     public Channel(DutchBot bot, String name) {
-	this._bot = bot;
+	this.bot = bot;
 	modulemanager = new ModuleManager(bot);
-	this._key = "";
-	this._channelName = name;
-	this._chanservInvite = false;
+	this.key = "";
+	this.channelName = name;
+	this.chanservInvite = false;
     }
 
     public Channel(DutchBot bot, String name, String key) {
-	this._bot = bot;
+	this.bot = bot;
 	modulemanager = new ModuleManager(bot);
-	this._key = key;
-	this._channelName = name;
-	this._chanservInvite = false;
+	this.key = key;
+	this.channelName = name;
+	this.chanservInvite = false;
     }
 
     public Channel(DutchBot bot, String name, String key, boolean chanservInvite) {
 	modulemanager = new ModuleManager(bot);
-	this._bot = bot;
-	this._key = key;
-	this._channelName = name;
-	this._chanservInvite = chanservInvite;
+	this.bot = bot;
+	this.key = key;
+	this.channelName = name;
+	this.chanservInvite = chanservInvite;
     }
 
     public void join() {
 
-	if (_key != null) {
-	    if (!_key.trim().isEmpty()) {
-		this._bot.joinChannel(this._channelName, _key);
+	if (key != null) {
+	    if (!key.trim().isEmpty()) {
+		this.bot.joinChannel(this.channelName, key);
 	    }
 	}
-	if (_chanservInvite) {
-	    this._bot.logMessage("Trying to join " + _channelName
+	if (chanservInvite) {
+	    this.bot.logMessage("Trying to join " + channelName
 		    + " by CS invite");
-	    this._bot.sendRawLine("CS invite " + this._channelName);
-	    this._bot.joinChannel(_channelName);
+	    this.bot.sendRawLine("CS invite " + this.channelName);
+	    this.bot.joinChannel(channelName);
 	} else
-	    this._bot.joinChannel(_channelName);
+	    this.bot.joinChannel(channelName);
 
+    }
+
+    public void changeTopic(String topic) {
+	this.bot.setTopic(channelName, topic);
     }
 
     public void processMessage(String sender, String login, String host,
@@ -124,7 +150,7 @@ public class Channel {
     }
 
     public User[] getUsers() {
-	return this._bot.getUsers(this._channelName);
+	return this.bot.getUsers(this.channelName);
     }
 
     public User getUser(String nick) throws IrcException {
@@ -139,7 +165,22 @@ public class Channel {
 
     @Override
     public String toString() {
-	return this._channelName;
+	return this.channelName;
+    }
+
+    /**
+     * @return the topic
+     */
+    public String getTopic() {
+	return topic;
+    }
+
+    /**
+     * @param topic
+     *            the topic to set
+     */
+    public void setTopic(String topic) {
+	this.topic = topic;
     }
 
 }
