@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry excluding="org/Thom/DutchBot/Events/|org/Thom/DutchBot/ChannelLogger.java" kind="src" path="src"/>
+	<classpathentry excluding="org/Thom/DutchBot/Events/|org/Thom/DutchBot/ChannelLogger.java|org/Thom/DutchBot/Modules/StatustopicModule.java" kind="src" path="src"/>
 	<classpathentry exported="true" kind="lib" path="libs/commons-cli-1.2-javadoc.jar"/>
 	<classpathentry exported="true" kind="lib" path="libs/commons-cli-1.2-sources.jar"/>
 	<classpathentry exported="true" kind="lib" path="libs/commons-cli-1.2.jar" sourcepath="libs/commons-cli-1.2-sources.jar">

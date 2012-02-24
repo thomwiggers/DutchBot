@@ -340,7 +340,8 @@ public class DutchBot extends PircBot {
     protected void onMessage(String channel, String sender, String login,
 	    String hostname, String message) {
 	// also treat "Dutchbot: <cmd>" lines as the command prefix.
-	if (message.startsWith(this.getNick() + ": "))
+	if (message.toLowerCase().startsWith(
+		this.getNick().toLowerCase() + ": "))
 	    message = _commandPrefix
 		    + message.substring((this.getNick() + ": ").length());
 	else if (message.startsWith(this.getNick() + " "))

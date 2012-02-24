@@ -20,11 +20,13 @@ public final class AccessList {
     /**
      * List with aliases
      */
-    private static HashMap<String, String> _aliasList = new HashMap<String, String>();
+    private static HashMap<String, String> aliasList = new HashMap<String, String>();
     /**
      * List with hostmasks and their privilege levels
      */
-    private static HashMap<String, Privileges> _accessList = new HashMap<String, Privileges>();
+    private static HashMap<String, Privileges> accessList = new HashMap<String, Privileges>();
+
+    private static HashMap<String, Privileges> channelAccessList = new HashMap<String, Privileges>();
     /**
      * Config object
      */
@@ -45,15 +47,15 @@ public final class AccessList {
 
 	String user = login + "@" + hostname;
 	// make sure to update the alias:
-	if (_aliasList.containsKey(user)) {
-	    user = _aliasList.get(user);
+	if (aliasList.containsKey(user)) {
+	    user = aliasList.get(user);
 	}
-	_accessList.put(user.toLowerCase(), level);
+	accessList.put(user.toLowerCase(), level);
 	System.out.println("Registered " + user);
 	// update config
-	if (config.containsKey("acl." + user))
-	    config.clearProperty("acl." + user);
-	config.addProperty("acl." + user, level.getValue());
+	if (config.containsKey("acl.user." + user))
+	    config.clearProperty("acl.user." + user);
+	config.addProperty("acl.user." + user, level.getValue());
 	try {
 	    config.save();
 	} catch (ConfigurationException e) {
@@ -78,11 +80,11 @@ public final class AccessList {
 	String originalUser = originalLogin + "@" + originalHostname;
 	String aliasUser = aliasLogin + "@" + aliasHostname;
 
-	if (!_accessList.containsKey(originalUser))
+	if (!accessList.containsKey(originalUser))
 	    throw new AccessListException(
 		    "Can't add an alias to a nick that does not exist!");
 
-	_aliasList.put(aliasUser, originalUser);
+	aliasList.put(aliasUser, originalUser);
 
 	if (config.containsKey("alias." + aliasUser))
 	    config.clearProperty("alias." + aliasUser);
@@ -99,7 +101,7 @@ public final class AccessList {
      */
     public static void delUser(String login, String hostname)
 	    throws AccessListException {
-	_accessList.remove(login + "@" + hostname);
+	accessList.remove(login + "@" + hostname);
 	config.clearProperty(login + "@" + hostname);
 	try {
 	    config.save();
@@ -123,13 +125,19 @@ public final class AccessList {
 	config.load();
 
 	@SuppressWarnings("rawtypes")
-	Iterator keys = config.getKeys("acl");
+	Iterator keys = config.getKeys("acl.user");
 	while (keys.hasNext()) {
 	    String key = keys.next().toString();
-	    String host = String.copyValueOf(key.toCharArray(), 4,
-		    key.toString().length() - 4).toLowerCase();
+	    String host = key.substring("acl.user.".length());
 	    Privileges axx = Privileges.lookup((config.getInt(key)));
-	    _accessList.put(host, axx);
+	    accessList.put(host, axx);
+	}
+	keys = config.getKeys("acl.channel");
+	while (keys.hasNext()) {
+	    String key = keys.next().toString();
+	    String channel = "#" + key.substring("acl.channel.".length());
+	    Privileges axx = Privileges.lookup(config.getInt(key));
+	    channelAccessList.put(channel, axx);
 	}
 
 	keys = config.getKeys("alias");
@@ -137,7 +145,7 @@ public final class AccessList {
 	    String key = keys.next().toString();
 	    String host = String.copyValueOf(key.toCharArray(), 6, key
 		    .toString().length() - 6);
-	    _aliasList.put(host, config.getString(key));
+	    aliasList.put(host, config.getString(key));
 	}
 
     }
@@ -154,18 +162,31 @@ public final class AccessList {
 	    Privileges minimumAccess) {
 	String user = login + "@" + hostname;
 	user = user.toLowerCase();
-	if (_aliasList.containsKey(user))
-	    user = _aliasList.get(user);
+	if (aliasList.containsKey(user))
+	    user = aliasList.get(user);
 
 	Privileges userAccess = Privileges.USER;
-	if (_accessList.containsKey(user)) {
-	    userAccess = _accessList.get(user);
+	if (accessList.containsKey(user)) {
+	    userAccess = accessList.get(user);
 	}
 
 	if (userAccess.getValue() >= minimumAccess.getValue()) {
 	    bot.logMessage("Authorized user " + user);
 	    return true;
 	}
+
+	return false;
+    }
+
+    public static boolean isChannelAllowed(String channel,
+	    Privileges minimumAccess) {
+	Privileges defaultAccess = Privileges.USER;
+
+	if (channelAccessList.containsKey(channel))
+	    defaultAccess = channelAccessList.get(channel);
+
+	if (defaultAccess.getValue() >= minimumAccess.getValue())
+	    return true;
 
 	return false;
     }
