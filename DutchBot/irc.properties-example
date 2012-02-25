@@ -34,6 +34,7 @@ db.password foobar
 #############
 drone.username DutchDude
 drone.password MyVerySekritIrcKey
+drone.channels #joins,#these,#channels
 ##############
 #IRC channels#
 ##############
