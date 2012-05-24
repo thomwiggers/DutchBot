@@ -157,6 +157,7 @@ public class DutchBot extends PircBot {
 		    e.printStackTrace();
 		}
 	    }
+
 	if (this._config.containsKey("db.database")
 		&& this._config.containsKey("db.username")
 		&& this._config.containsKey("db.password"))

@@ -191,6 +191,14 @@ public final class AccessList {
 	return false;
     }
 
+    public static boolean isKnown(String login, String host) {
+	String user = login + "@" + host;
+	if (accessList.containsKey(user))
+	    return true;
+	else
+	    return false;
+    }
+
     /**
      * @param bot
      *            the bot to set

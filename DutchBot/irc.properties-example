@@ -45,6 +45,8 @@ irc.channel.dutchdude.modules Quit
 #moduleconfig#
 ##############
 modules.sudo.password foobar
+modules.watch.channels #what.cd-invites 
+modules.watch.reportchannel
 #########################
 #globally loaded modules#
 #########################
