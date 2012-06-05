@@ -215,7 +215,18 @@ public class User {
     }
 
     private final String _prefix;
-    private final String _nick;
-    private final String _lowerNick;
+    private String _nick;
+    private String _lowerNick;
+
+    /**
+     * Sets the new nickname of a user
+     * 
+     * @param newNick
+     */
+    public void setNick(String newNick) {
+	this._nick = newNick;
+	this._lowerNick = newNick.toLowerCase();
+
+    }
 
 }
