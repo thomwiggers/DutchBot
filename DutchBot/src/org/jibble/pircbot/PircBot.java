@@ -3255,7 +3255,7 @@ public abstract class PircBot implements ReplyConstants {
 		String channel = enumeration.nextElement();
 		User user = this.removeUser(channel, oldNick);
 		if (user != null) {
-		    user = new User(user.getPrefix(), newNick);
+		    user.setNick(newNick);
 		    this.addUser(channel, user);
 		}
 	    }
