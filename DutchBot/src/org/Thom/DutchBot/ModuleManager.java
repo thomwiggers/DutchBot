@@ -7,6 +7,7 @@ import org.Thom.DutchBot.Modules.IChannelJoinEvent;
 import org.Thom.DutchBot.Modules.IChannelKickEvent;
 import org.Thom.DutchBot.Modules.IChannelMessageEvent;
 import org.Thom.DutchBot.Modules.IInviteEvent;
+import org.Thom.DutchBot.Modules.IPartEvent;
 import org.Thom.DutchBot.Modules.IPrivateMessageEvent;
 import org.Thom.DutchBot.Modules.IQuitEvent;
 import org.Thom.DutchBot.Modules.ModuleAbstract;
@@ -170,5 +171,20 @@ public final class ModuleManager {
 			sourceHostname, reason);
 	}
 
+    }
+
+    /**
+     * @param channel
+     * @param sender
+     * @param login
+     * @param hostname
+     */
+    public void notifyPartEvent(String channel, String sender, String login,
+	    String hostname) {
+	for (ModuleAbstract m : this.moduleList) {
+	    if (m instanceof IPartEvent)
+		((IPartEvent) m).notifyPartEvent(channel, sender, login,
+			hostname);
+	}
     }
 }

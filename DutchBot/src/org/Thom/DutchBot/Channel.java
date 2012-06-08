@@ -40,6 +40,16 @@ public class Channel {
      */
     private final ModuleManager modulemanager;
 
+    /**
+     * Delegate to module manager of this class
+     * 
+     * @param channel
+     * @param kickerNick
+     * @param kickerLogin
+     * @param kickerHostname
+     * @param recipientNick
+     * @param reason
+     */
     public void notifyChannelKickEvent(String channel, String kickerNick,
 	    String kickerLogin, String kickerHostname, String recipientNick,
 	    String reason) {
@@ -47,6 +57,29 @@ public class Channel {
 		kickerLogin, kickerHostname, recipientNick, reason);
     }
 
+    /**
+     * Delegate to channel part event of module manager instance of this class
+     * 
+     * @param channel
+     * @param sender
+     * @param login
+     * @param hostname
+     * @see org.Thom.DutchBot.ModuleManager#notifyPartEvent(java.lang.String,
+     *      java.lang.String, java.lang.String, java.lang.String)
+     */
+    public void notifyPartEvent(String channel, String sender, String login,
+	    String hostname) {
+	this.modulemanager.notifyPartEvent(channel, sender, login, hostname);
+    }
+
+    /**
+     * Delegate to modulemanager of this class
+     * 
+     * @param channel
+     * @param sender
+     * @param login
+     * @param hostname
+     */
     public void notifyChannelJoinEvent(String channel, String sender,
 	    String login, String hostname) {
 	this.modulemanager.notifyChannelJoinEvent(channel, sender, login,

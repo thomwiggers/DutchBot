@@ -384,8 +384,12 @@ public class DutchBot extends PircBot {
 	this.getChannel(channel).setTopic(topic);
     }
 
-    /**
-     * Runs on Kick
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.jibble.pircbot.PircBot#onKick(java.lang.String,
+     * java.lang.String, java.lang.String, java.lang.String, java.lang.String,
+     * java.lang.String)
      */
     @Override
     protected void onKick(String channel, String kickerNick,
@@ -396,6 +400,20 @@ public class DutchBot extends PircBot {
 	this.getChannel(channel).notifyChannelKickEvent(channel, kickerNick,
 		kickerLogin, kickerHostname, recipientNick, reason);
 
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.jibble.pircbot.PircBot#onPart(java.lang.String,
+     * java.lang.String, java.lang.String, java.lang.String)
+     */
+    @Override
+    protected void onPart(String channel, String nick, String login,
+	    String hostname) {
+	this.moduleManager.notifyPartEvent(channel, nick, login, hostname);
+	this.getChannel(channel)
+		.notifyPartEvent(channel, nick, login, hostname);
     }
 
     /**
