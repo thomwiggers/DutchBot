@@ -1,7 +1,12 @@
 bin/*
+libs/**
 *.class
-*/irc.properties
+irc.properties
 
+#Eclipse
+.classpath
+.project
+.externalToolBuilders/**
 # Package Files #
 *.jar
 *.war
