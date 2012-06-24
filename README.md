@@ -3,5 +3,6 @@ DutchBot
 
 DutchBot source
 
-DutchBot dependancies:
-* Apache commons
+DutchBot dependancies, see also the maven file
+* Apache commons CLI,
+* Apache commons configure

@@ -29,7 +29,7 @@ public class DutchBot extends PircBot {
     /**
      * @Override
      */
-    private static final String VERSION = "½";
+    private static final String VERSION = "Â½";
 
     /**
      * Owner of the bot

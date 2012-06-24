@@ -3,6 +3,8 @@ libs/**
 *.class
 irc.properties
 
+target/
+
 #Eclipse
 .classpath
 .project
