@@ -190,7 +190,6 @@ public class DutchBot extends PircBot {
 	this._channelList.clear();
 
 	// join all the channels configured
-	@SuppressWarnings("unchecked")
 	Iterator<String> channels = this._config.getKeys("irc.channel");
 	while (channels.hasNext()) {
 
