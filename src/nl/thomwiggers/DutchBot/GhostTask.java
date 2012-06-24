@@ -1,4 +1,4 @@
-package org.Thom.DutchBot;
+package nl.thomwiggers.DutchBot;
 
 import java.util.TimerTask;
 

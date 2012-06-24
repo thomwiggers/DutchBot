@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.Thom.DutchBot;
+package nl.thomwiggers.DutchBot;
 
 /**
  * @author Thom

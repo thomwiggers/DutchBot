@@ -2,7 +2,7 @@
  * 
  * @author Thom
  */
-package org.Thom.DutchBot;
+package nl.thomwiggers.DutchBot;
 
 import java.sql.Connection;
 import java.sql.DriverManager;

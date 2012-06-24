@@ -1,7 +1,7 @@
 /**
  * Manages channels
  */
-package org.Thom.DutchBot;
+package nl.thomwiggers.DutchBot;
 
 import java.lang.reflect.InvocationTargetException;
 
@@ -64,7 +64,7 @@ public class Channel {
      * @param sender
      * @param login
      * @param hostname
-     * @see org.Thom.DutchBot.ModuleManager#notifyPartEvent(java.lang.String,
+     * @see nl.thomwiggers.DutchBot.ModuleManager#notifyPartEvent(java.lang.String,
      *      java.lang.String, java.lang.String, java.lang.String)
      */
     public void notifyPartEvent(String channel, String sender, String login,

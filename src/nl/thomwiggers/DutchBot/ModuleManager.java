@@ -1,16 +1,16 @@
-package org.Thom.DutchBot;
+package nl.thomwiggers.DutchBot;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 
-import org.Thom.DutchBot.Modules.IChannelJoinEvent;
-import org.Thom.DutchBot.Modules.IChannelKickEvent;
-import org.Thom.DutchBot.Modules.IChannelMessageEvent;
-import org.Thom.DutchBot.Modules.IInviteEvent;
-import org.Thom.DutchBot.Modules.IPartEvent;
-import org.Thom.DutchBot.Modules.IPrivateMessageEvent;
-import org.Thom.DutchBot.Modules.IQuitEvent;
-import org.Thom.DutchBot.Modules.ModuleAbstract;
+import nl.thomwiggers.DutchBot.Modules.IChannelJoinEvent;
+import nl.thomwiggers.DutchBot.Modules.IChannelKickEvent;
+import nl.thomwiggers.DutchBot.Modules.IChannelMessageEvent;
+import nl.thomwiggers.DutchBot.Modules.IInviteEvent;
+import nl.thomwiggers.DutchBot.Modules.IPartEvent;
+import nl.thomwiggers.DutchBot.Modules.IPrivateMessageEvent;
+import nl.thomwiggers.DutchBot.Modules.IQuitEvent;
+import nl.thomwiggers.DutchBot.Modules.ModuleAbstract;
 
 public final class ModuleManager {
 
@@ -52,7 +52,7 @@ public final class ModuleManager {
 	    InvocationTargetException {
 	@SuppressWarnings("unchecked")
 	Class<ModuleAbstract> o = (Class<ModuleAbstract>) Class
-		.forName("org.Thom.DutchBot.Modules." + module);
+		.forName("nl.thomwiggers.DutchBot.Modules." + module);
 	Class<?>[] args = new Class[1];
 	args[0] = DutchBot.class;
 	ModuleAbstract m = o.getConstructor(args).newInstance(bot);

@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.Thom.DutchBot;
+package nl.thomwiggers.DutchBot;
 
 import java.io.FileNotFoundException;
 import java.util.HashMap;
