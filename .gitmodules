@@ -1,0 +1,3 @@
+[submodule "src/main/java/nl/thomwiggers/DutchBot/Modules"]
+	path = src/main/java/nl/thomwiggers/DutchBot/Modules
+	url = git@github.com:theguyofdoom/DutchBot-Modules.git
