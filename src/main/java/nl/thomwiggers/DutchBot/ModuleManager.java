@@ -3,14 +3,13 @@ package nl.thomwiggers.DutchBot;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 
-import nl.thomwiggers.DutchBot.Modules.IChannelJoinEvent;
-import nl.thomwiggers.DutchBot.Modules.IChannelKickEvent;
-import nl.thomwiggers.DutchBot.Modules.IChannelMessageEvent;
-import nl.thomwiggers.DutchBot.Modules.IInviteEvent;
-import nl.thomwiggers.DutchBot.Modules.IPartEvent;
-import nl.thomwiggers.DutchBot.Modules.IPrivateMessageEvent;
-import nl.thomwiggers.DutchBot.Modules.IQuitEvent;
-import nl.thomwiggers.DutchBot.Modules.ModuleAbstract;
+import nl.thomwiggers.DutchBot.Events.IChannelJoinEvent;
+import nl.thomwiggers.DutchBot.Events.IChannelKickEvent;
+import nl.thomwiggers.DutchBot.Events.IChannelMessageEvent;
+import nl.thomwiggers.DutchBot.Events.IInviteEvent;
+import nl.thomwiggers.DutchBot.Events.IPartEvent;
+import nl.thomwiggers.DutchBot.Events.IPrivateMessageEvent;
+import nl.thomwiggers.DutchBot.Events.IQuitEvent;
 
 public final class ModuleManager {
 
