@@ -1,9 +1,8 @@
 /**
  * 
  */
-package nl.thomwiggers.DutchBot.Modules;
+package nl.thomwiggers.DutchBot;
 
-import nl.thomwiggers.DutchBot.DutchBot;
 
 /**
  * Abstract modules class

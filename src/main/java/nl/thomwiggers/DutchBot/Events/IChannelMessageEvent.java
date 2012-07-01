@@ -1,4 +1,4 @@
-package nl.thomwiggers.DutchBot.Modules;
+package nl.thomwiggers.DutchBot.Events;
 
 public interface IChannelMessageEvent {
     public void notifyChannelMessageEvent(String channel, String sender,
