@@ -77,7 +77,6 @@ public class DatabaseConnection {
 	try {
 	    Statement s = db.createStatement();
 	    ResultSet rs = s.executeQuery(query);
-	    s.close();
 	    return rs;
 	} catch (SQLException e) {
 	    e.printStackTrace();
