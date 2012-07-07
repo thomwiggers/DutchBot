@@ -9,12 +9,12 @@ package nl.thomwiggers.DutchBot.Events;
  * 
  */
 public interface IPartEvent {
-    /**
-     * @param channel
-     * @param sender
-     * @param login
-     * @param hostname
-     */
-    public void notifyPartEvent(String channel, String sender, String login,
-	    String hostname);
+	/**
+	 * @param channel
+	 * @param sender
+	 * @param login
+	 * @param hostname
+	 */
+	public void notifyPartEvent(String channel, String sender, String login,
+			String hostname);
 }

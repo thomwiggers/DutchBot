@@ -3,7 +3,6 @@
  */
 package nl.thomwiggers.DutchBot;
 
-
 /**
  * Abstract modules class
  * 
@@ -12,32 +11,32 @@ package nl.thomwiggers.DutchBot;
  */
 public abstract class ModuleAbstract {
 
-    /**
-     * DutchBot instance
-     */
-    protected final DutchBot bot;
+	/**
+	 * DutchBot instance
+	 */
+	protected final DutchBot bot;
 
-    /**
-     * Initializes a new module
-     */
-    public ModuleAbstract(DutchBot bot) {
-	this.bot = bot;
-	init();
-    }
+	/**
+	 * Initializes a new module
+	 */
+	public ModuleAbstract(DutchBot bot) {
+		this.bot = bot;
+		init();
+	}
 
-    /**
-     * Initializer, called by constructor
-     */
-    public void init() {
-    }
+	/**
+	 * Initializer, called by constructor
+	 */
+	public void init() {
+	}
 
-    /**
-     * Returns the bot instance
-     * 
-     * @return DutchBot instance
-     */
-    public DutchBot getBot() {
-	return bot;
-    }
+	/**
+	 * Returns the bot instance
+	 * 
+	 * @return DutchBot instance
+	 */
+	public DutchBot getBot() {
+		return bot;
+	}
 
 }

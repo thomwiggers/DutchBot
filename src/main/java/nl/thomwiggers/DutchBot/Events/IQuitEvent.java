@@ -9,12 +9,12 @@ package nl.thomwiggers.DutchBot.Events;
  * 
  */
 public interface IQuitEvent {
-    /**
-     * @param sourceNick
-     * @param sourceLogin
-     * @param sourceHostname
-     * @param reason
-     */
-    public void notifyQuitEvent(String sourceNick, String sourceLogin,
-	    String sourceHostname, String reason);
+	/**
+	 * @param sourceNick
+	 * @param sourceLogin
+	 * @param sourceHostname
+	 * @param reason
+	 */
+	public void notifyQuitEvent(String sourceNick, String sourceLogin,
+			String sourceHostname, String reason);
 }
