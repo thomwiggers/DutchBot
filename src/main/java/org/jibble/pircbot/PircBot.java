@@ -28,6 +28,7 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.StringTokenizer;
+import java.util.concurrent.Semaphore;
 
 /**
  * PircBot is a Java framework for writing IRC bots quickly and easily.
@@ -81,8 +82,21 @@ public abstract class PircBot implements ReplyConstants {
 	private static final int AOP_REMOVE = 8;
 	private static final int OWNER_ADD = 9;
 	private static final int OWNER_REMOVE = 10;
-
-	/**
+ 
+	protected final Semaphore whoisSemaphore = new Semaphore(0);
+	protected Hostmask whoisResult = null;
+	
+	public class Hostmask {
+		public final String login;
+		public final String hostname;
+		
+		public Hostmask (String login, String hostname) {
+			this.login = login;
+			this.hostname = hostname;
+		}
+	}
+	
+	/** 
 	 * Constructs a PircBot with the default settings. Your own constructors in
 	 * classes which extend the PircBot abstract class should be responsible for
 	 * changing the default settings if required.
@@ -1234,6 +1248,14 @@ public abstract class PircBot implements ReplyConstants {
 					response.indexOf(" :"));
 			User[] users = this.getUsers(channel);
 			this.onUserList(channel, users);
+		} else if (code == RPL_WHOISUSER) {
+			String[] args = response.split(" ");
+			String login = args[2];
+			String host = args[3];
+			this.whoisResult = new Hostmask(login, host);
+			whoisSemaphore.release();
+		} else if (code == ERR_NOSUCHNICK && whoisSemaphore.hasQueuedThreads()) {
+			whoisSemaphore.release();
 		}
 
 		this.onServerResponse(code, response);

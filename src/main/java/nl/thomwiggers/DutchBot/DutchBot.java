@@ -295,7 +295,7 @@ public class DutchBot extends PircBot {
 				return false;
 			}
 			this.identify(this.getNickservPassword());
-
+			this.sendMessage("HostServ", "ON");
 		}
 
 		loadConfig();
@@ -461,6 +461,9 @@ public class DutchBot extends PircBot {
 		return this._channelList.get(channel);
 	}
 
+	/* (non-Javadoc)
+	 * @see org.jibble.pircbot.PircBot#onJoin(java.lang.String, java.lang.String, java.lang.String, java.lang.String)
+	 */
 	@Override
 	public void onJoin(String channel, String sender, String login,
 			String hostname) {
@@ -481,7 +484,20 @@ public class DutchBot extends PircBot {
 				hostname);
 
 	}
-
+	
+	public Hostmask getHostmask(String nick) {
+		whoisResult = null;
+		this.sendRawLineViaQueue("WHOIS " + nick);
+		if (whoisResult == null)
+			try {
+				whoisSemaphore.acquire();
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		return whoisResult;
+	}
+	
 	/**
 	 * Gets the nickserv password
 	 * 
