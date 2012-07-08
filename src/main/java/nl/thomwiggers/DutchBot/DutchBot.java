@@ -91,6 +91,8 @@ public class DutchBot extends PircBot {
 	 */
 	private final HashMap<String, Channel> _channelList = new HashMap<String, Channel>();
 
+	private String[] droneChannels;
+
 	/**
 	 * Initializes bot.
 	 * 
@@ -179,7 +181,7 @@ public class DutchBot extends PircBot {
 			
 		};
 		
-		this.getTimer().schedule(tt, 2000);
+		this.getTimer().schedule(tt, 3000);
 		
 	}
 
@@ -193,10 +195,13 @@ public class DutchBot extends PircBot {
 					"identify " + this._config.getString("drone.username")
 							+ " " + this._config.getString("drone.password"));
 		else if (this._config.containsKey("drone.username")
-				&& this._config.containsKey("drone.password") && this._config.containsKey("drone.channels"))
+				&& this._config.containsKey("drone.password") && this._config.containsKey("drone.channels")) {
 			this.sendMessage("drone",
 					"enter " +this._config.getString("drone.channels")+ " " +this._config.getString("drone.username")
 							+ " " + this._config.getString("drone.password"));
+		
+			this.droneChannels = this._config.getStringArray("drone.channels");
+		}
 	}
 
 	/**
@@ -258,6 +263,11 @@ public class DutchBot extends PircBot {
 				}
 			}
 			this.join(chan);
+			
+		}
+		
+		for(String channel : this.droneChannels) {
+			this.getChannel(channel).hasJoined();
 		}
 		
 	}
