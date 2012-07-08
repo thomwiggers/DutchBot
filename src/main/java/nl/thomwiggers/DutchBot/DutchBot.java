@@ -188,9 +188,14 @@ public class DutchBot extends PircBot {
 	 */
 	private void droneLogin() {
 		if (this._config.containsKey("drone.username")
-				&& this._config.containsKey("drone.password"))
+				&& this._config.containsKey("drone.password") && !this._config.containsKey("drone.channels"))
 			this.sendMessage("drone",
 					"identify " + this._config.getString("drone.username")
+							+ " " + this._config.getString("drone.password"));
+		else if (this._config.containsKey("drone.username")
+				&& this._config.containsKey("drone.password") && this._config.containsKey("drone.channels"))
+			this.sendMessage("drone",
+					"enter " +this._config.getString("drone.channels")+ " " +this._config.getString("drone.username")
 							+ " " + this._config.getString("drone.password"));
 	}
 
