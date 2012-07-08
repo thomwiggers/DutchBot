@@ -176,13 +176,13 @@ public class DutchBot extends PircBot {
 			public void run() {
 				sendRawLine("HS ON");
 				loadChannels();
-				
+
 			}
-			
+
 		};
-		
+
 		this.getTimer().schedule(tt, 3000);
-		
+
 	}
 
 	/**
@@ -190,18 +190,53 @@ public class DutchBot extends PircBot {
 	 */
 	private void droneLogin() {
 		if (this._config.containsKey("drone.username")
-				&& this._config.containsKey("drone.password") && !this._config.containsKey("drone.channels"))
+				&& this._config.containsKey("drone.password")
+				&& !this._config.containsKey("drone.channels"))
 			this.sendMessage("drone",
 					"identify " + this._config.getString("drone.username")
 							+ " " + this._config.getString("drone.password"));
 		else if (this._config.containsKey("drone.username")
-				&& this._config.containsKey("drone.password") && this._config.containsKey("drone.channels")) {
+				&& this._config.containsKey("drone.password")
+				&& this._config.containsKey("drone.channels")) {
+			
 			this.sendMessage("drone",
-					"enter " +this._config.getString("drone.channels")+ " " +this._config.getString("drone.username")
-							+ " " + this._config.getString("drone.password"));
-		
+					"enter " + implodeArray(this._config.getStringArray("drone.channels"), ",") + " "
+							+ this._config.getString("drone.username") + " "
+							+ this._config.getString("drone.password"));
+
 			this.droneChannels = this._config.getStringArray("drone.channels");
 		}
+
+	}
+
+	/**
+	 * Method to join array elements of type string
+	 * 
+	 * @author Hendrik Will, imwill.com
+	 * @param inputArray
+	 *            Array which contains strings
+	 * @param glueString
+	 *            String between each array element
+	 * @return String containing all array elements seperated by glue string
+	 */
+	public static String implodeArray(String[] inputArray, String glueString) {
+
+		/** Output variable */
+		String output = "";
+
+		if (inputArray.length > 0) {
+			StringBuilder sb = new StringBuilder();
+			sb.append(inputArray[0]);
+
+			for (int i = 1; i < inputArray.length; i++) {
+				sb.append(glueString);
+				sb.append(inputArray[i]);
+			}
+
+			output = sb.toString();
+		}
+
+		return output;
 	}
 
 	/**
@@ -263,17 +298,17 @@ public class DutchBot extends PircBot {
 				}
 			}
 			this.join(chan);
-			
+
 		}
-		
-		for(String channel : this.droneChannels) {
-			if(!_channelList.containsKey(channel)) {
+
+		for (String channel : this.droneChannels) {
+			if (!_channelList.containsKey(channel)) {
 				Channel chan = new Channel(this, channel);
 				this.join(chan);
 			}
 			this.getChannel(channel).hasJoined();
 		}
-		
+
 	}
 
 	public final void logMessage(String message) {
@@ -326,7 +361,7 @@ public class DutchBot extends PircBot {
 				return false;
 			}
 			this.identify(this.getNickservPassword());
-			
+
 		}
 
 		loadConfig();
@@ -492,8 +527,11 @@ public class DutchBot extends PircBot {
 		return this._channelList.get(channel);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.jibble.pircbot.PircBot#onJoin(java.lang.String, java.lang.String, java.lang.String, java.lang.String)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.jibble.pircbot.PircBot#onJoin(java.lang.String,
+	 * java.lang.String, java.lang.String, java.lang.String)
 	 */
 	@Override
 	public void onJoin(String channel, String sender, String login,
@@ -515,7 +553,7 @@ public class DutchBot extends PircBot {
 				hostname);
 
 	}
-	
+
 	public Hostmask getHostmask(String nick) {
 		whoisResult = null;
 		this.sendRawLineViaQueue("WHOIS " + nick);
@@ -528,7 +566,7 @@ public class DutchBot extends PircBot {
 			}
 		return whoisResult;
 	}
-	
+
 	/**
 	 * Gets the nickserv password
 	 * 
