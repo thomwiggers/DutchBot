@@ -267,6 +267,10 @@ public class DutchBot extends PircBot {
 		}
 		
 		for(String channel : this.droneChannels) {
+			if(!_channelList.containsKey(channel)) {
+				Channel chan = new Channel(this, channel);
+				this.join(chan);
+			}
 			this.getChannel(channel).hasJoined();
 		}
 		
