@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Timer;
+import java.util.TimerTask;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
@@ -166,10 +167,20 @@ public class DutchBot extends PircBot {
 					this._config.getString("db.database"),
 					this._config.getString("db.username"),
 					this._config.getString("db.password"));
-
 		droneLogin();
+		TimerTask tt = new TimerTask() {
 
-		loadChannels();
+			@Override
+			public void run() {
+				sendRawLine("HS ON");
+				loadChannels();
+				
+			}
+			
+		};
+		
+		this.getTimer().schedule(tt, 2000);
+		
 	}
 
 	/**
@@ -243,6 +254,7 @@ public class DutchBot extends PircBot {
 			}
 			this.join(chan);
 		}
+		
 	}
 
 	public final void logMessage(String message) {
@@ -295,7 +307,7 @@ public class DutchBot extends PircBot {
 				return false;
 			}
 			this.identify(this.getNickservPassword());
-			this.sendMessage("HostServ", "ON");
+			
 		}
 
 		loadConfig();
