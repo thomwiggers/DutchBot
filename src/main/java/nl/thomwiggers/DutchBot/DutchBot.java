@@ -80,7 +80,7 @@ public class DutchBot extends PircBot {
 	/**
 	 * Module manager
 	 */
-	private final ModuleManager moduleManager;
+	private ModuleManager moduleManager;
 	/**
 	 * Config
 	 */
@@ -198,11 +198,14 @@ public class DutchBot extends PircBot {
 		else if (this._config.containsKey("drone.username")
 				&& this._config.containsKey("drone.password")
 				&& this._config.containsKey("drone.channels")) {
-			
-			this.sendMessage("drone",
-					"enter " + implodeArray(this._config.getStringArray("drone.channels"), ",") + " "
-							+ this._config.getString("drone.username") + " "
-							+ this._config.getString("drone.password"));
+
+			this.sendMessage(
+					"drone",
+					"enter "
+							+ implodeArray(this._config
+									.getStringArray("drone.channels"), ",")
+							+ " " + this._config.getString("drone.username")
+							+ " " + this._config.getString("drone.password"));
 
 			this.droneChannels = this._config.getStringArray("drone.channels");
 		}
@@ -300,13 +303,14 @@ public class DutchBot extends PircBot {
 			this.join(chan);
 
 		}
-
-		for (String channel : this.droneChannels) {
-			if (!_channelList.containsKey(channel)) {
-				Channel chan = new Channel(this, channel);
-				this.join(chan);
+		if (droneChannels != null) {
+			for (String channel : this.droneChannels) {
+				if (!_channelList.containsKey(channel)) {
+					Channel chan = new Channel(this, channel);
+					this.join(chan);
+				}
+				this.getChannel(channel).hasJoined();
 			}
-			this.getChannel(channel).hasJoined();
 		}
 
 	}
@@ -343,7 +347,9 @@ public class DutchBot extends PircBot {
 	 */
 	public final boolean tryConnect() throws IOException, IrcException,
 			InterruptedException, ConfigurationException {
-
+		this.moduleManager = new ModuleManager(this);
+		this._channelList.clear();
+		
 		if (!this.isConnected()) {
 			try {
 				String nick = this.getName();
@@ -554,6 +560,12 @@ public class DutchBot extends PircBot {
 
 	}
 
+	/**
+	 * ALWAYS call in a separate thread from modules / InputThread
+	 * 
+	 * @param nick
+	 * @return
+	 */
 	public Hostmask getHostmask(String nick) {
 		whoisResult = null;
 		this.sendRawLineViaQueue("WHOIS " + nick);

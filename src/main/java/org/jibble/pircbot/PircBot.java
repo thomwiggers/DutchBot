@@ -94,6 +94,10 @@ public abstract class PircBot implements ReplyConstants {
 			this.login = login;
 			this.hostname = hostname;
 		}
+		
+		public String toString() {
+			return login + "@" + hostname;
+		}
 	}
 	
 	/** 
